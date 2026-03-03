@@ -1,0 +1,60 @@
+1️⃣ User
+name
+
+email
+
+password
+
+role (user / organizer / admin)
+
+2️⃣ Event
+title
+
+description
+
+date
+
+capacity
+
+status (active / closed)
+
+organizer (ref User)
+
+3️⃣ Registration ⭐ (CRITICAL)
+user
+
+event
+
+paymentStatus
+
+attendanceStatus
+
+chatgpt said
+{
+  user: ObjectId,
+  event: ObjectId,
+  paymentStatus: "pending" |  "paid",
+  attendanceStatus: "registered" | "attended",
+  registeredAt: Date
+}
+
+
+4️⃣ Payment
+user
+
+event
+
+amount
+
+status
+
+transactionId
+
+5️⃣ Notification
+user
+
+message
+
+isRead
+
+type

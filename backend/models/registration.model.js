@@ -1,0 +1,38 @@
+import mongoose from "mongoose";
+
+const registrationSchema = new mongoose.Schema(
+    {
+        user_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Users",
+            required:true
+        },
+        event_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "event",
+            required:true
+        },
+        payment_id: {
+            type: String,
+            required:true
+        },
+        payment_status: {
+            type: String,
+            enum: ["pending", "success", "failed"],
+            default: "pending"
+        },
+        registered_at: {
+            type: Date,
+            default:Date.now   //whenever object is created that time is taken
+        }
+
+        
+    },
+    {
+        timestamps:true   //automatically adds createdAt, updatedAt
+    }
+
+);
+
+const registration = new mongoose.model("Registration", registrationSchema)
+export default registration
