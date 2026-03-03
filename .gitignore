@@ -1,5 +1,5 @@
-node_modules/
-**/node_modules/
+# node_modules/
+# **/node_modules/
 
 .env
 .env.*
@@ -12,7 +12,7 @@ yarn-error.log*
 
 build/
 dist/
-frontend/app/build/
+frontend/build/
 backend/build/
 
 package-lock.json
