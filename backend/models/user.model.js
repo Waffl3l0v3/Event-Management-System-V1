@@ -9,6 +9,10 @@ const userSchema = new mongoose.Schema(
         // },
         //user id is not needed whenever a document is created, mongodb creates user._id which can be used
         //there is no auto increment in mongodb!!!
+        name: {
+            type: String,
+            required:true
+        },
         username: {
             type: String,
             required: true,
@@ -25,6 +29,9 @@ const userSchema = new mongoose.Schema(
         },
         contact: {
             type: String
+        },
+        coverimg: {
+            type:String,
         }
     },
     {

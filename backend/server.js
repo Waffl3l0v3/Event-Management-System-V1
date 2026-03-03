@@ -2,7 +2,7 @@ import path from "path"
 import express from "express"
 import dotenv from "dotenv"
 import cookieParser from "cookie-parser"
-
+import authRoutes from "./routes/auth.route.js"
 import {connectDB} from "./config/connectMongoDB.js";
 
 dotenv.config(); 
@@ -17,6 +17,7 @@ app.use(express.urlencoded({ extended: true })); // to parse form data(urlencode
 
 app.use(cookieParser());
 
+app.use('/api/auth', authRoutes);
 // if (process.env.NODE_ENV ==	= "production") {
 // 	app.use(express.static(path.join(__dirname, "/frontend/dist")));
 // 	app.get("*", (req, res) => {
