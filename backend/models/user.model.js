@@ -46,5 +46,5 @@ const userSchema = new mongoose.Schema(
 //users is just a javascript variable name which is used to interact with mongodb later on
 //User is converted to users which is the collection name 
 //user is just the blueprint(structure of the document)
-const user = mongoose.model("User", userSchema)
-export default user;
+const User = mongoose.model("User", userSchema)
+export default User;

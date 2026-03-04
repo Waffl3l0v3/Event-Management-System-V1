@@ -25,5 +25,5 @@ const notificationSchema = new mongoose.Schema(
     },
 );  
 
-const notification = new mongoose.model("Notification", notificationSchema);
-export default notification;
+const Notification = new mongoose.model("Notification", notificationSchema);
+export default Notification;

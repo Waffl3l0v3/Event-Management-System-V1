@@ -8,20 +8,20 @@ import {generateTokenAndSetCookie} from "../lib/utils/generateToken.js";
 
 export const register = async (req, res) => {
   try {
-    const { name, username, email, password, contact, coverImg } = req.body;
+    const { name, username, password, email} = req.body;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ error: "Invalid email format" });
     }
 
     //If username already exists?
-    const existingUser = await user.findOne({ username });
+    const existingUser = await User.findOne({ username });
     if (existingUser) {
       return res.status(400).json({ error: "Username is already taken" });
     }
 
     //If email already exists?
-    const existingEmail = await user.findOne({ email });
+    const existingEmail = await User.findOne({ email });
     if (existingEmail) {
       return res.status(400).json({ error: "Email is already taken" });
     }
@@ -37,7 +37,7 @@ export const register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    contact ? contact : "";
+    
     // upload img to cloud here
 
     //Create new user
@@ -46,14 +46,15 @@ export const register = async (req, res) => {
       username,
       email,
       password: hashedPassword,
-      contact: contact,
-      coverImg: coverImg,
+      // contact: contact,
+      // coverImg: coverImg,
     });
 
     //Generate token and set cookie. Save user in db.
     if (newUser) {
-      //generateTokenAndSetCookie(newUser._id, res);
+      
       await newUser.save();
+      generateTokenAndSetCookie(newUser._id, res);
       //Send response back to client
       res.status(201).json({
         _id: newUser._id,
@@ -72,7 +73,7 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { username, password } = req.body();
+    const { username, password } = req.body;
     const user = await User.findOne({ username });
     const isPasswordCorrect = await bcrypt.compare(
       password,
