@@ -28,10 +28,12 @@ const userSchema = new mongoose.Schema(
             required: true
         },
         contact: {
-            type: String
+            type: String,
+            default:""
         },
-        coverimg: {
+        coverImg: {
             type:String,
+            default:""
         }
     },
     {
