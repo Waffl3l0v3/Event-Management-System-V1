@@ -3,29 +3,45 @@ import Event from "../models/event.model.js";
 import User from "../models/user.model.js";
 import axios from "axios";
 
-export const validateLocation = async (location) => {
-    const response = await axios.get(
-    `https://api.opencagedata.com/geocode/v1/json?q=${location}&key=${process.env.GEOCODE_KEY}`
-    );
+// export const validateLocation = async (location) => {
+//   try {
+//     const response = await axios.get(
+//       "https://nominatim.openstreetmap.org/search",
+//       {
+//         params: {
+//           q: location,
+//           format: "json",
+//           limit: 1
+//         },
+//         headers: {
+//           "User-Agent": "event-management-app"
+//         }
+//       }
+//     );
 
-    if (response.data.results.length === 0) {
-        return false;
-    }
+//     if (response.data.length === 0) {
+//       return null;
+//     }
 
-    return true;
-    };
-export const create = async (req, res) => {
+//       return true;
+
+//   } catch (error) {
+//     console.log("Geocoding error:", error.message);
+//     return null;
+//   }
+// };
+export const createEvent = async (req, res) => {
     try {
         const { title, description, date, location, capacity, coverimg="" } = req.body;
         const user = req.user;
 
-        const isValid = await validateLocation(req.body.location);
+        // const isValid = await validateLocation(location);
 
-        if (!isValid) {
-            return res.status(400).json({error: "Invalid event location"});
-        }
+        // if (!isValid) {
+        //     return res.status(400).json({error: "Invalid event location"});
+        // }
 
-        if (description.length) { 
+        if (description.length<30) { 
             return res.status(400).json({ error: "Description length should be minimum 30 characters" });
         }
 
@@ -51,12 +67,27 @@ export const create = async (req, res) => {
             organiser: user.username,
             coverimg: coverimg
         });
-        res.status(200).json({
-            "msg": "event registered",
-            "decoded": decoded,
-        })
+        if (newEvent) {
+            await newEvent.save();
+            res.status(200).json({
+                title: newEvent.title,
+                description: newEvent.description,
+                date: newEvent.date,
+                location: newEvent.location,
+                capacity: newEvent.capacity,
+                status: "upcoming",
+                organiser: user.username,
+                coverimg: coverimg
+            })
+        }
+        else { 
+            res.status(400).json({ error: "Invalid event details" });
+        }
     }
-    catch (error) { }
+    catch (error) { 
+        console.log("Error in create event controller", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
 
 
 
