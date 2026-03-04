@@ -29,9 +29,9 @@ const registrationSchema = new mongoose.Schema(
         
     },
     {
-        timestamps:true   //automatically adds createdAt, updatedAt
-    }
-
+        timestamps: true,
+        versionKey: false
+    },
 );
 
 const registration = new mongoose.model("Registration", registrationSchema)

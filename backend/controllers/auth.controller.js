@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import user from "../models/user.model";
-
+import user from "../models/user.model.js";
+import bcrypt from "bcryptjs";
 // export const routeName1= async (req, res) => {
 // 	// body
 // };

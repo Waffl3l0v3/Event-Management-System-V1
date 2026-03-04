@@ -35,8 +35,9 @@ const userSchema = new mongoose.Schema(
         }
     },
     {
-        timestamps:true
-    }
+        timestamps: true,
+        versionKey: false
+    },
 );
 
 //mongoose.model(ModelName, Schema)
