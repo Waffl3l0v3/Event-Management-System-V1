@@ -1,0 +1,13 @@
+{
+    "name":"Rewa",
+    "username":"WAFFL3",
+    "password":"12345678",
+    "email":"rewashete@gmail.com"
+}
+
+{
+    "name":"RewaShete",
+    "username":"Saturn",
+    "password":"12345678",
+    "email":"rewa@gmail.com"
+}
