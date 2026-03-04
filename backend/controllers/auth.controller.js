@@ -8,7 +8,7 @@ import {generateTokenAndSetCookie} from "../lib/utils/generateToken.js";
 
 export const register = async (req, res) => {
   try {
-    const { name, username, password, email} = req.body;
+    const { name, username, password, email, contact="", coverImg=""} = req.body;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ error: "Invalid email format" });
@@ -37,8 +37,9 @@ export const register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    
-    // upload img to cloud here
+    if (coverImg){
+      // upload img to cloud here
+    }
 
     //Create new user
     const newUser = new User({
@@ -46,8 +47,8 @@ export const register = async (req, res) => {
       username,
       email,
       password: hashedPassword,
-      // contact: contact,
-      // coverImg: coverImg,
+      contact: contact,
+      coverImg: coverImg,
     });
 
     //Generate token and set cookie. Save user in db.
@@ -61,12 +62,14 @@ export const register = async (req, res) => {
         name: newUser.name,
         username: newUser.username,
         email: newUser.email,
+        contact: newUser.contact,
+        coverImg: newUser.coverImg
       });
     } else {
       res.status(400).json({ error: "Invalid user data" });
     }
   } catch (error) {
-    console.log("Error in signup controller", error.message);
+    console.log("Error in register controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -100,7 +103,7 @@ export const login = async (req, res) => {
   }
 };
 
-export const logout = async () => {
+export const logout = async (req,res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 });
     res.status(200).json({ message: "Logged out successfully" });
