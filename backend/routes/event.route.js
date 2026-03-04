@@ -1,12 +1,12 @@
 import express from "express";
-import { create } from "../controllers/event.controller.js";
+import { createEvent } from "../controllers/event.controller.js";
 import { protectRoute } from "../middleware/protectRoute.js";
 
 
 
 const router = express.Router();
 
-router.post("/register",protectRoute, create);
+router.post("/register",protectRoute, createEvent);
 // router.post("/login", login);
 // router.get("/logout", logout);
 

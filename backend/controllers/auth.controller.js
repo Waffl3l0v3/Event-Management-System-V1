@@ -1,6 +1,6 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
-import {generateTokenAndSetCookie} from "../lib/utils/generateToken.js";
+import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
 
 // export const routeName1= async (req, res) => {
 // 	// body
@@ -8,7 +8,14 @@ import {generateTokenAndSetCookie} from "../lib/utils/generateToken.js";
 
 export const register = async (req, res) => {
   try {
-    const { name, username, password, email, contact="", coverImg=""} = req.body;
+    const {
+      name,
+      username,
+      password,
+      email,
+      contact = "",
+      coverImg = "",
+    } = req.body;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ error: "Invalid email format" });
@@ -37,7 +44,7 @@ export const register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    if (coverImg){
+    if (coverImg) {
       // upload img to cloud here
     }
 
@@ -53,7 +60,6 @@ export const register = async (req, res) => {
 
     //Generate token and set cookie. Save user in db.
     if (newUser) {
-      
       await newUser.save();
       generateTokenAndSetCookie(newUser._id, res);
       //Send response back to client
@@ -63,7 +69,7 @@ export const register = async (req, res) => {
         username: newUser.username,
         email: newUser.email,
         contact: newUser.contact,
-        coverImg: newUser.coverImg
+        coverImg: newUser.coverImg,
       });
     } else {
       res.status(400).json({ error: "Invalid user data" });
@@ -87,9 +93,10 @@ export const login = async (req, res) => {
       return res.status(400).json({ error: "Invalid username or password" });
     }
 
-    generateTokenAndSetCookie(user._id, res);
+    const accessToken = generateTokenAndSetCookie(user._id, res);
 
     res.status(200).json({
+      accessToken,
       _id: user._id,
       name: user.name,
       username: user.username,
@@ -97,13 +104,14 @@ export const login = async (req, res) => {
       contact: user.contact,
       coverImg: user.coverImg,
     });
+    
   } catch (error) {
     console.log("Error in login controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-export const logout = async (req,res) => {
+export const logout = async (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 });
     res.status(200).json({ message: "Logged out successfully" });
@@ -111,4 +119,18 @@ export const logout = async (req,res) => {
     console.log("Error in logout controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
+};
+
+export const refreshToken = async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+
+  const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
+
+  const newAccessToken = jwt.sign(
+    { id: decoded.id },
+    process.env.ACCESS_SECRET,
+    { expiresIn: "15m" },
+  );
+
+  res.json({ accessToken: newAccessToken });
 };
