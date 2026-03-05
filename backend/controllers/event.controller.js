@@ -88,7 +88,9 @@ export const createEvent = async (req, res) => {
         console.log("Error in create event controller", error.message);
         res.status(500).json({ error: "Internal Server Error" });
     }
+};
 
-
-
+export const registerEvent = (req, res) => {
+    
+ 
 };
