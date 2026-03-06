@@ -14,7 +14,7 @@ export const register = async (req, res) => {
       password,
       email,
       contact = "",
-      coverImg = "",
+      profileImg = "",
     } = req.body;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -44,7 +44,7 @@ export const register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    if (coverImg) {
+    if (profileImg) {
       // upload img to cloud here
     }
 
@@ -55,7 +55,7 @@ export const register = async (req, res) => {
       email,
       password: hashedPassword,
       contact: contact,
-      coverImg: coverImg,
+      profileImg: profileImg,
     });
 
     //Generate token and set cookie. Save user in db.
@@ -69,7 +69,7 @@ export const register = async (req, res) => {
         username: newUser.username,
         email: newUser.email,
         contact: newUser.contact,
-        coverImg: newUser.coverImg,
+        profileImg: newUser.profileImg,
       });
     } else {
       res.status(400).json({ error: "Invalid user data" });
@@ -102,7 +102,7 @@ export const login = async (req, res) => {
       username: user.username,
       email: user.email,
       contact: user.contact,
-      coverImg: user.coverImg,
+      profileImg: user.profileImg,
     });
     
   } catch (error) {

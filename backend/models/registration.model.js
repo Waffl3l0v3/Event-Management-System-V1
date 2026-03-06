@@ -13,8 +13,9 @@ const registrationSchema = new mongoose.Schema(
       required: true,
     },
     payment_id: {
-      payment_id: ObjectId,
-      ref: "Payment",
+      // type: mongoose.Schema.Types.ObjectId,
+      // ref: "Payment",
+      type:String,
       required: true,
     },
     payment_status: {

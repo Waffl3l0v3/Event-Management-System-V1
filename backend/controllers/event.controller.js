@@ -1,5 +1,4 @@
 import Event from "../models/event.model.js";
-import axios from "axios";
 import Registration from "../models/registration.model.js";
 
 // export const validateLocation = async (location) => {
@@ -29,9 +28,10 @@ import Registration from "../models/registration.model.js";
 //     return null;
 //   }
 // };
+
 export const createEvent = async (req, res) => {
     try {
-        const { title, description, date, location, capacity, coverimg="" } = req.body;
+        const { title, description, date, location, capacity, coverImg="" } = req.body;
         const user = req.user;
 
         // const isValid = await validateLocation(location);
@@ -64,11 +64,12 @@ export const createEvent = async (req, res) => {
             capacity,
             status: "upcoming",
             organiser: user._id,
-            coverimg: coverimg
+            coverImg: coverImg
         });
         if (newEvent) {
             await newEvent.save();
             res.status(200).json({
+                id: newEvent._id,
                 title: newEvent.title,
                 description: newEvent.description,
                 date: newEvent.date,
@@ -76,7 +77,7 @@ export const createEvent = async (req, res) => {
                 capacity: newEvent.capacity,
                 status: "upcoming",
                 organiser: user._id,
-                coverimg: coverimg
+                coverImg: coverImg
             })
         }
         else { 
@@ -154,7 +155,7 @@ export const updateEvent = async(req, res) => {
             return res.status(400).json({ message: "You are not authorized to update this event" });
         };
         
-        const { new_title, new_description, new_date, new_location, new_capacity, new_coverimg = "" } = req.body;
+        const { new_title, new_description, new_date, new_location, new_capacity, new_coverImg = "" } = req.body;
         
         const eventDate = new Date(new_date);
         const today = new Date();
@@ -169,18 +170,19 @@ export const updateEvent = async(req, res) => {
         event.date = new_date || event.date;
         event.location = new_location || event.location;
         event.capacity = new_capacity || event.capacity;
-        event.coverImg = new_coverimg || event.coverImg;
+        event.coverImg = new_coverImg || event.coverImg;
         await event.save()
-        res.status(200).json({
+        const data = {
+            id:event._id,
             title: event.title,
             description: event.description,
             date: event.date,
             location: event.location,
             capacity: event.capacity,
             organiser: user._id,
-            coverimg: event.coverImg
-        })
-        return res.status(200).json("Event Succesfully updated");
+            coverImg: event.coverImg
+        }
+        return res.status(200).json({"msg":"Event Succesfully updated", "data":data});
     }
     catch (error) { 
         console.log("Error in event update controller", error);
