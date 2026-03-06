@@ -1,5 +1,4 @@
 import Event from "../models/event.model.js";
-import axios from "axios";
 import Registration from "../models/registration.model.js";
 
 // export const validateLocation = async (location) => {
@@ -29,6 +28,7 @@ import Registration from "../models/registration.model.js";
 //     return null;
 //   }
 // };
+
 export const createEvent = async (req, res) => {
     try {
         const { title, description, date, location, capacity, coverimg="" } = req.body;
@@ -142,4 +142,27 @@ export const deleteEvent = async (req, res) => {
     }
     
 
+    if (eventDate < today) {
+      return res
+        .status(400)
+        .json({ error: "Event date cannot be in the past" });
+    }
+
+    if (!capacity) capacity = "none";
+
+    const newEvent = Event({
+      title,
+      description,
+      date,
+      location,
+      capacity,
+      status: "upcoming",
+      organiser: user.username,
+      coverimg: coverimg,
+    });
+    res.status(200).json({
+      msg: "event registered",
+      decoded: decoded,
+    });
+  } catch (error) {}
 };
