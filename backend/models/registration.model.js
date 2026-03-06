@@ -39,7 +39,14 @@ const registrationSchema = new mongoose.Schema(
   },
 );
 
-registrationSchema.index({ user: 1, event: 1 }, { unique: true });
+// prevents same user registering twice
+registrationSchema.index(
+  { user_id: 1, event_id: 1 },
+  { unique: true }
+);
+
+// show events user registered for
+registrationSchema.index({ user_id: 1 });
 
 const Registration = new mongoose.model("Registration", registrationSchema);
 export default Registration;

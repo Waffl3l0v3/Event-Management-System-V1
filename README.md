@@ -13,12 +13,11 @@ WE GETTING RICHHH
 7. Event comments / discussions
 8. Users can post comments events
 9. Users can follow other users
-10. Event location validation
-11. Event status management (upcoming / completed)
-12. Capacity limit for events
-13. User profile page
-14. View events created by a user
-15. Notifications for event updates
+10. Event status management (upcoming / completed)
+11. Capacity limit for events
+12. User profile page
+13. View events created by a user
+14. Notifications for event updates
 
 ## V2
 1. chatbot

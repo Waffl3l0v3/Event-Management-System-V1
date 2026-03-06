@@ -24,6 +24,7 @@ const paymentSchema = new mongoose.Schema(
     transactionId: {
       type: String,
       required: true,
+      index:true, // Useful for payment verification.
     },
     // paymentGateway: {
     //   type: String,

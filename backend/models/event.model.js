@@ -34,6 +34,7 @@ const eventSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
     coverImg: {
       type: String,
@@ -86,6 +87,12 @@ const eventSchema = new mongoose.Schema(
     versionKey: false,
   },
 );
+
+// find upcoming events sorted by date
+eventSchema.index({ status: 1, date: 1 });
+
+// // MongoDB text search
+// eventSchema.index({ title: "text", description: "text" });
 
 const Event = new mongoose.model("Event", eventSchema);
 export default Event;
