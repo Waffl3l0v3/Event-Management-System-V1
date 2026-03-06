@@ -131,7 +131,7 @@ export const deleteEvent = async (req, res) => {
         if (!event) {
             return res.status(404).json({ message: "Event not found" });
         }
-        if (event.organiser != user._id) { 
+        if (event.organiser.toString() != user._id.toString()) { 
             return res.status(404).json({ message: "You are not authorized to delete this event" });
         }
         await Event.findByIdAndDelete(req.params.id);
