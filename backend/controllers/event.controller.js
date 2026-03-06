@@ -1,4 +1,5 @@
 import Event from "../models/event.model.js";
+import axios from "axios";
 import Registration from "../models/registration.model.js";
 
 // export const validateLocation = async (location) => {
@@ -28,7 +29,6 @@ import Registration from "../models/registration.model.js";
 //     return null;
 //   }
 // };
-
 export const createEvent = async (req, res) => {
     try {
         const { title, description, date, location, capacity, coverimg="" } = req.body;
@@ -142,27 +142,48 @@ export const deleteEvent = async (req, res) => {
     }
     
 
-    if (eventDate < today) {
-      return res
-        .status(400)
-        .json({ error: "Event date cannot be in the past" });
+};
+
+export const updateEvent = async(req, res) => {
+    try {
+        const event = await Event.findById(req.params.id);
+        const user = req.user;
+        console.log(user)
+        console.log(event)
+        if (event.organiser.toString() != user._id.toString()) {
+            return res.status(400).json({ message: "You are not authorized to update this event" });
+        };
+        
+        const { new_title, new_description, new_date, new_location, new_capacity, new_coverimg = "" } = req.body;
+        
+        const eventDate = new Date(new_date);
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        eventDate.setHours(0, 0, 0, 0);
+        if (eventDate < today) { 
+            return res.status(400).json({ message: "Event cannot be in the past" });
+        };
+
+        event.title = new_title || event.title;
+        event.description = new_description || event.description;
+        event.date = new_date || event.date;
+        event.location = new_location || event.location;
+        event.capacity = new_capacity || event.capacity;
+        event.coverImg = new_coverimg || event.coverImg;
+        await event.save()
+        res.status(200).json({
+            title: event.title,
+            description: event.description,
+            date: event.date,
+            location: event.location,
+            capacity: event.capacity,
+            organiser: user._id,
+            coverimg: event.coverImg
+        })
+        return res.status(200).json("Event Succesfully updated");
     }
-
-    if (!capacity) capacity = "none";
-
-    const newEvent = Event({
-      title,
-      description,
-      date,
-      location,
-      capacity,
-      status: "upcoming",
-      organiser: user.username,
-      coverimg: coverimg,
-    });
-    res.status(200).json({
-      msg: "event registered",
-      decoded: decoded,
-    });
-  } catch (error) {}
+    catch (error) { 
+        console.log("Error in event update controller", error);
+        return res.status(500).json({message:"Error in event update controller"});
+    };
 };
