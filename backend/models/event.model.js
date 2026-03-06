@@ -31,9 +31,10 @@ const eventSchema = new mongoose.Schema(
             enum: ["upcoming", "completed"],
             
         },
-        organizer: {
+        organiser: {
             type: mongoose.Schema.Types.ObjectId,
-            ref:"User"
+            ref: "User",
+            required:true
         },
         coverimg: {
             type: String,

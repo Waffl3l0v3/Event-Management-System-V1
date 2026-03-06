@@ -1,7 +1,6 @@
-import jwt from "jsonwebtoken";
 import Event from "../models/event.model.js";
-import User from "../models/user.model.js";
 import axios from "axios";
+import Registration from "../models/registration.model.js";
 
 // export const validateLocation = async (location) => {
 //   try {
@@ -64,7 +63,7 @@ export const createEvent = async (req, res) => {
             location,
             capacity,
             status: "upcoming",
-            organiser: user.username,
+            organiser: user._id,
             coverimg: coverimg
         });
         if (newEvent) {
@@ -76,7 +75,7 @@ export const createEvent = async (req, res) => {
                 location: newEvent.location,
                 capacity: newEvent.capacity,
                 status: "upcoming",
-                organiser: user.username,
+                organiser: user._id,
                 coverimg: coverimg
             })
         }
@@ -90,7 +89,57 @@ export const createEvent = async (req, res) => {
     }
 };
 
-export const registerEvent = (req, res) => {
+export const registerEvent = async (req, res) => {
+    try {
+        const user = req.user;
+        const event = await Event.findById(req.params.id);
+        
+        if (!event) {
+            return res.status(404).json({ message: "Event not found" });
+        }
+        
+        const newRegistration = new Registration({
+            user_id: user._id,
+            event_id: event._id,
+            payment_id: 131,
+            payment_status: "success",
+        })
+        if (newRegistration) {
+            await newRegistration.save();
+            return res.status(200).json({
+                user_id: newRegistration.user_id,
+                event_id: event._id,
+                payment_id: 131,
+                payment_status: "success",
+            })
+        }
+        else { 
+            return res.status(400).json({ error: "Invalid event details" });
+        }
+        } catch (error) {
+            return res.status(500).json({ message: "Server error" });
+    }
     
- 
+};
+
+export const deleteEvent = async (req, res) => {
+    try {
+        const event = await Event.findById(req.params.id);
+        const user = req.user;
+        console.log(event);
+        console.log(user);
+        if (!event) {
+            return res.status(404).json({ message: "Event not found" });
+        }
+        if (event.organiser != user._id) { 
+            return res.status(404).json({ message: "You are not authorized to delete this event" });
+        }
+        await Event.findByIdAndDelete(req.params.id);
+        return res.status(200).json({ message: "Event deleted successfully" });
+    } catch (error) { 
+        console.log("Error in delete event controller", error);
+        res.status(500).json({ message: "Internal Server error" });
+    }
+    
+
 };
