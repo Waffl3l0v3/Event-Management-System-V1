@@ -36,6 +36,7 @@ export const createEvent = async (req, res) => {
       description,
       date,
       location,
+      price,
       capacity,
       coverImg = "",
     } = req.body;
@@ -71,6 +72,7 @@ export const createEvent = async (req, res) => {
       description,
       date,
       location,
+      price,
       capacity,
       status: "upcoming",
       organiser: user._id,
@@ -84,6 +86,7 @@ export const createEvent = async (req, res) => {
         description: newEvent.description,
         date: newEvent.date,
         location: newEvent.location,
+        price:newEvent.price,
         capacity: newEvent.capacity,
         status: "upcoming",
         organiser: user._id,
@@ -95,74 +98,6 @@ export const createEvent = async (req, res) => {
   } catch (error) {
     console.log("Error in create event controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-
-export const registerEvent = async (req, res) => {
-  try {
-    const user = req.user;
-    const event = await Event.findById(req.params.id);
-
-    if (!event) {
-      return res.status(404).json({ message: "Event not found" });
-    }
-
-    // check if user already registered
-    const existingRegistration = await Registration.findOne({
-      user_id: user._id,
-      event_id: eventId,
-    });
-
-    if (existingRegistration) {
-      return res.status(400).json({
-        message: "User already registered for this event",
-      });
-    }
-
-    // check capacity
-    if (event.registeredCount >= event.capacity) {
-      return res.status(400).json({
-        message: "Event is full",
-      });
-    }
-
-    const newRegistration = await Registration.create({
-      user_id: user._id,
-      event_id: event._id,
-      payment_id: 131,
-      payment_status: "success"
-    });
-
-    // increment event registration count
-    await Event.findByIdAndUpdate(
-      event._id,
-      { $inc: { registeredCount: 1 } }
-    );
-
-    return res.status(201).json({
-      message: "Successfully registered",
-      registration: newRegistration
-    });
-
-    // const newRegistration = new Registration({
-    //   user_id: user._id,
-    //   event_id: event._id,
-    //   payment_id: 131,
-    //   payment_status: "success",
-    // });
-    // if (newRegistration) {
-    //   await newRegistration.save();
-    //   return res.status(200).json({
-    //     user_id: newRegistration.user_id,
-    //     event_id: event._id,
-    //     payment_id: 131,
-    //     payment_status: "success",
-    //   });
-    // } else {
-    //   return res.status(400).json({ error: "Invalid event details" });
-    // }
-  } catch (error) {
-    return res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -205,6 +140,7 @@ export const updateEvent = async (req, res) => {
       new_description,
       new_date,
       new_location,
+      new_price,
       new_capacity,
       new_coverImg = "",
     } = req.body;
@@ -221,6 +157,7 @@ export const updateEvent = async (req, res) => {
     event.description = new_description || event.description;
     event.date = new_date || event.date;
     event.location = new_location || event.location;
+    event.price = new_price || event.price;
     event.capacity = new_capacity || event.capacity;
     event.coverImg = new_coverImg || event.coverImg;
     await event.save();
@@ -230,6 +167,7 @@ export const updateEvent = async (req, res) => {
       description: event.description,
       date: event.date,
       location: event.location,
+      price: event.price,
       capacity: event.capacity,
       organiser: user._id,
       coverImg: event.coverImg,
@@ -242,38 +180,5 @@ export const updateEvent = async (req, res) => {
     return res
       .status(500)
       .json({ message: "Error in event update controller" });
-  }
-};
-
-
-export const cancelRegistration = async (req, res) => {
-  try {
-    const user = req.user;
-    const eventId = req.params.id;
-
-    const registration = await Registration.findOneAndDelete({
-      user_id: user._id,
-      event_id: eventId
-    });
-
-    if (!registration) {
-      return res.status(404).json({
-        message: "Registration not found"
-      });
-    }
-
-    await Event.findByIdAndUpdate(
-      eventId,
-      { $inc: { registeredCount: -1 } }
-    );
-
-    return res.status(200).json({
-      message: "Registration cancelled"
-    });
-
-  } catch (error) {
-    return res.status(500).json({
-      message: "Server error"
-    });
   }
 };

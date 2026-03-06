@@ -43,7 +43,6 @@ const eventSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-
     registeredCount: {
       type: Number,
       default: 0,

@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser"
 import authRoutes from "./routes/auth.route.js"
 import {connectDB} from "./config/connectMongoDB.js";
 import eventRoutes from "./routes/event.route.js"
+import registrationRoutes from './routes/registration.route.js'
 
 dotenv.config(); 
 
@@ -17,7 +18,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
-app.use('/api/event', eventRoutes)
+app.use('/api/event', eventRoutes);
+app.use('/api/registration', registrationRoutes);
+
 // if (process.env.NODE_ENV ==	= "production") {
 // 	app.use(express.static(path.join(__dirname, "/frontend/dist")));
 // 	app.get("*", (req, res) => {
@@ -29,10 +32,9 @@ app.get("/", (req,res) => {
 	res.send("Server is ready");
 })
 
-console.log(process.env.MONGO_URI);
+// console.log(process.env.MONGO_URI);
 
 app.listen(PORT, () => {
 	console.log(`Server is running on port ${PORT}`);
 	connectDB();
-	// console.log(`MONGO_URI=`${process.env.MONGO_URI});
 });
