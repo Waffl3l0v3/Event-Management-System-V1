@@ -75,3 +75,5 @@ export const cancelRegistration = async (req, res) => {
     });
   }
 };
+
+
