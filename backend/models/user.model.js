@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema(
     },
     username: {
       type: String,
-      required: true,
+      //required: true,
       unique: true,
       index:true,
     },
@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      //required: true,
     },
     contact: {
       type: String,
@@ -62,6 +62,10 @@ const userSchema = new mongoose.Schema(
         default: [],
       },
     ],
+    profileCompleted: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: true,

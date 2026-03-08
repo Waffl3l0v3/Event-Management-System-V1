@@ -1,7 +1,7 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
-
+import client from "../config/googleClient.js";
 // export const routeName1= async (req, res) => {
 // 	// body
 // };
@@ -133,4 +133,74 @@ export const refreshToken = async (req, res) => {
   );
 
   res.json({ accessToken: newAccessToken });
+};
+
+export const googleAuth = async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ message: "Token required" });
+    }
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+
+    const payload = ticket.getPayload();
+
+    const { sub, email, name, picture } = payload;
+
+    let user = await User.findOne({ googleId: sub });
+
+    if (!user) {
+      user = await User.findOne({ email });
+
+      if (user) {
+        user.googleId = sub;
+        await user.save();
+      } else {
+        user = await User.create({
+          name,
+          email,
+          profileImg: picture,
+          googleId: sub,
+          profileCompleted: false
+        });
+      }
+    }
+
+    const accessToken = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    res.json({ accessToken, user,profileCompleted: user.profileCompleted });
+
+  } catch (err) {
+    res.status(401).json({ message: "Google authentication failed" });
+  }
+};
+
+export const completeProfile = async (req, res) => {
+  try {
+    const { username, contact } = req.body;
+
+    const user = await User.findById(req.user.id);
+
+    user.username = username;
+    user.contact = contact;
+    user.profileCompleted = true;
+
+    await user.save();
+
+    res.json({
+      message: "Profile completed",
+      user
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: "Error completing profile" });
+  }
 };
