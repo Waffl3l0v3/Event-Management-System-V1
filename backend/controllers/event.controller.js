@@ -1,34 +1,7 @@
 import Event from "../models/event.model.js";
 import Registration from "../models/registration.model.js";
 
-// export const validateLocation = async (location) => {
-//   try {
-//     const response = await axios.get(
-//       "https://nominatim.openstreetmap.org/search",
-//       {
-//         params: {
-//           q: location,
-//           format: "json",
-//           limit: 1
-//         },
-//         headers: {
-//           "User-Agent": "event-management-app"
-//         }
-//       }
-//     );
-
-//     if (response.data.length === 0) {
-//       return null;
-//     }
-
-//       return true;
-
-//   } catch (error) {
-//     console.log("Geocoding error:", error.message);
-//     return null;
-//   }
-// };
-
+// Create a new event.
 export const createEvent = async (req, res) => {
 	try {
 		const {
@@ -101,6 +74,7 @@ export const createEvent = async (req, res) => {
 	}
 };
 
+// Delete an event.
 export const deleteEvent = async (req, res) => {
 	try {
 		const event = await Event.findById(req.params.id);
@@ -123,6 +97,7 @@ export const deleteEvent = async (req, res) => {
 	}
 };
 
+// Update event details.
 export const updateEvent = async (req, res) => {
 	try {
 		const event = await Event.findById(req.params.id);
@@ -183,6 +158,7 @@ export const updateEvent = async (req, res) => {
 	}
 };
 
+// Fetch event details.
 export const viewEvent = async (req, res) => {
 	try {
 		const event = await Event.findById(req.params.id);
@@ -212,14 +188,22 @@ export const viewEvent = async (req, res) => {
 	}
 };
 
-export const getRegistration = async (req, res) => {
-	const event = await Event.findById(req.params.id);
-	const users = await event.user_id.find({});
-	console.log(users);
-	return res.status(200).json({ users: users });
+// Fetch events created by a specific organizer.
+export const getEventsByOrganizer = async (req, res) => {
+	try {
+		// organizer should only see events they created
+		// prefer using authenticated user instead of passing id in params
+		const userId = req.user ? req.user._id : req.params.id;
+		const events = await Event.find({ organiser: userId });
+		return res.status(200).json({ events });
+	} catch (error) {
+		console.log("Error in getMyEvents controller", error);
+		return res.status(500).json({ message: "Internal Server Error" });
+	}
 };
 
-export const getEvents = async (req, res) => {
+// Fetch all events.
+export const getAllEvents = async (req, res) => {
 	try {
 		const events = await Event.find();
 		const today = new Date();
@@ -236,3 +220,37 @@ export const getEvents = async (req, res) => {
 		res.status(500).json({message:"Internal server error"});
 	}
 };
+
+// add comment to event
+export const addComment = async (req,res)
+
+// delete commenet from event
+export const deleteComment = async (req, res)
+
+// export const validateLocation = async (location) => {
+//   try {
+//     const response = await axios.get(
+//       "https://nominatim.openstreetmap.org/search",
+//       {
+//         params: {
+//           q: location,
+//           format: "json",
+//           limit: 1
+//         },
+//         headers: {
+//           "User-Agent": "event-management-app"
+//         }
+//       }
+//     );
+
+//     if (response.data.length === 0) {
+//       return null;
+//     }
+
+//       return true;
+
+//   } catch (error) {
+//     console.log("Geocoding error:", error.message);
+//     return null;
+//   }
+// };

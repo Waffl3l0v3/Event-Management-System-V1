@@ -1,7 +1,8 @@
 import Registration from "../models/registration.model.js";
 import Event from "../models/event.model.js";
 
-export const registerEvent = async (req, res) => {
+// Register user for event.
+export const registerForEvent = async (req, res) => {
   try {
     const user = req.user;
     const event = await Event.findById(req.params.id);
@@ -48,6 +49,7 @@ export const registerEvent = async (req, res) => {
   }
 };
 
+// Cancel event registration.
 export const cancelRegistration = async (req, res) => {
   try {
     const user = req.user;
@@ -76,4 +78,30 @@ export const cancelRegistration = async (req, res) => {
   }
 };
 
+// new helper to fetch events a user has registered for
+export const getUserRegistrations = async (req, res) => {
+  try {
+    const user = req.user;
+    const registrations = await Registration.find({ user_id: user._id })
+      .populate({ path: "event_id", model: Event });
+
+    // map to event information, you can include the registration object if needed
+    const events = registrations.map((reg) => reg.event_id);
+    return res.status(200).json({ events });
+  } catch (error) {
+    console.log("Error fetching user registrations", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// Get all users registered for event.
+export const getEventRegistrations = async (req, res) => {
+	const event = await Event.findById(req.params.id);
+	const users = await event.user_id.find({});
+	console.log(users);
+	return res.status(200).json({ users: users });
+};
+
+// Checks if current user is registered.
+export default checkRegistrationStatus = async (req, res)
 

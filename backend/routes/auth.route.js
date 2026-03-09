@@ -1,5 +1,5 @@
 import express from "express";
-import { login, logout, refreshToken, register } from "../controllers/auth.controller.js";
+import { googleAuth, login, logout, refreshToken, register } from "../controllers/auth.controller.js";
 import { protectRoute } from "../middleware/protectRoute.js";
 
 
@@ -9,6 +9,7 @@ router.post("/register", register);
 router.post("/login", login);
 router.get("/logout", logout);
 router.post("/refresh", refreshToken);
+router.post("/google", googleAuth);
 
 
 export default router;

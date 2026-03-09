@@ -56,6 +56,7 @@ export const register = async (req, res) => {
       password: hashedPassword,
       contact: contact,
       profileImg: profileImg,
+      authProvider: "local"
     });
 
     //Generate token and set cookie. Save user in db.
@@ -70,6 +71,7 @@ export const register = async (req, res) => {
         email: newUser.email,
         contact: newUser.contact,
         profileImg: newUser.profileImg,
+        authProvider: newUser.authProvider,
       });
     } else {
       res.status(400).json({ error: "Invalid user data" });
@@ -165,7 +167,8 @@ export const googleAuth = async (req, res) => {
           email,
           profileImg: picture,
           googleId: sub,
-          profileCompleted: false
+          profileCompleted: false,
+          authProvider: "google"
         });
       }
     }
@@ -183,24 +186,3 @@ export const googleAuth = async (req, res) => {
   }
 };
 
-export const completeProfile = async (req, res) => {
-  try {
-    const { username, contact } = req.body;
-
-    const user = await User.findById(req.user.id);
-
-    user.username = username;
-    user.contact = contact;
-    user.profileCompleted = true;
-
-    await user.save();
-
-    res.json({
-      message: "Profile completed",
-      user
-    });
-
-  } catch (err) {
-    res.status(500).json({ message: "Error completing profile" });
-  }
-};
