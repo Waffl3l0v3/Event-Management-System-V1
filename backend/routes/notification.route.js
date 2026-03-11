@@ -7,7 +7,7 @@ import {
   deleteAllNotification
 } from "../controllers/notification.controller.js";
 
-import { protectRoute } from "../middleware/auth.middleware.js";
+import { protectRoute } from "../middleware/protectRoute.js";
 
 const router = express.Router();
 

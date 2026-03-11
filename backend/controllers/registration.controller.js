@@ -103,5 +103,5 @@ export const getEventRegistrations = async (req, res) => {
 };
 
 // Checks if current user is registered.
-export default checkRegistrationStatus = async (req, res)
+export const checkRegistrationStatus = async (req, res) => { };
 

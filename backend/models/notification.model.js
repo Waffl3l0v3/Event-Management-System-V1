@@ -22,12 +22,12 @@ const notificationSchema = new mongoose.Schema(
       required: true,
     },
     event: {
-      type: ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Event",
     },
 
     fromUser: {
-      type: ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
 

@@ -6,7 +6,7 @@ import {
   refundPayment
 } from "../controllers/payment.controller.js";
 
-import { protectRoute } from "../middleware/auth.middleware.js";
+import { protectRoute } from "../middleware/protectRoute.js";
 
 const router = express.Router();
 

@@ -222,10 +222,10 @@ export const getAllEvents = async (req, res) => {
 };
 
 // add comment to event
-export const addComment = async (req,res)
+export const addComment = async (req, res) => { };
 
 // delete commenet from event
-export const deleteComment = async (req, res)
+export const deleteComment = async (req, res) => { };
 
 // export const validateLocation = async (location) => {
 //   try {

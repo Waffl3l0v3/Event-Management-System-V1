@@ -3,9 +3,9 @@ import { protectRoute } from "../middleware/protectRoute.js";
 import {
   cancelRegistration,
   registerForEvent,
-  checkRegistrationStatus,
   getUserRegistrations,
   getEventRegistrations,
+  checkRegistrationStatus
 } from "../controllers/registration.controller.js";
 
 const router = express.Router();
