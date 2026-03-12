@@ -2,17 +2,17 @@ import mongoose from "mongoose";
 
 const registrationSchema = new mongoose.Schema(
   {
-    user_id: {
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Users",
       required: true,
     },
-    event_id: {
+    eventId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Event",
       required: true,
     },
-    payment_id: {
+    paymentId: {
       // type: mongoose.Schema.Types.ObjectId,
       // ref: "Payment",
       type:String,

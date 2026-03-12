@@ -2,11 +2,11 @@ import mongoose from "mongoose";
 
 const notificationSchema = new mongoose.Schema(
   {
-    user_id: {
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index:true, // Fetch user notifications
+      index: true, // Fetch user notifications
     },
     message: {
       type: String,
@@ -16,22 +16,25 @@ const notificationSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    notification_type: {
+    notificationType: {
       type: String,
-      // enum: ["payment","new_events","upcoming"],
+      enum: ["registration", "payment", "comment", "follow", "event_update"],
       required: true,
     },
-    event: {
+    eventId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Event",
     },
 
-    fromUser: {
+    fromUserId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
 
-    link: String,
+    link: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,

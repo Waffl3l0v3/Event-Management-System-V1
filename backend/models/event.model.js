@@ -50,7 +50,7 @@ const eventSchema = new mongoose.Schema(
     },
     comments: [
       {
-        _id: {
+        commentId: {
           type: mongoose.Schema.Types.ObjectId,
           default: () => new mongoose.Types.ObjectId(),
         },

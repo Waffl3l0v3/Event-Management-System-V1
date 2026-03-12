@@ -2,12 +2,12 @@ import mongoose from "mongoose";
 
 const paymentSchema = new mongoose.Schema(
   {
-    user_id: {
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Users",
       required: true,
     },
-    event_id: {
+    eventId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Event",
       required: true,
