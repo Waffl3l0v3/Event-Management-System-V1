@@ -31,12 +31,24 @@ export const updateUserProfile = async (req, res) => {};
 export const completeProfile = async (req, res) => {
   try {
     const { username, contact } = req.body;
+    let { profileImg } = req.body;
 
     const user = await User.findById(req.user.id);
 
     user.username = username;
     user.contact = contact;
     user.profileCompleted = true;
+
+    if (profileImg) {
+			if (user.coverImg) {
+				await cloudinary.uploader.destroy(user.coverImg.split("/").pop().split(".")[0]);
+			}
+
+			const uploadedResponse = await cloudinary.uploader.upload(profileImg, {
+        folder: "profile_images",
+      });
+			profileImg = uploadedResponse.secure_url;
+		}
 
     await user.save();
 

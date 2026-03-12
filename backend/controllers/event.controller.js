@@ -11,8 +11,8 @@ export const createEvent = async (req, res) => {
       location,
       price,
       capacity,
-      coverImg = "",
     } = req.body;
+    let {coverImg} = req.body;
     const user = req.user;
 
     // const isValid = await validateLocation(location);
@@ -39,6 +39,13 @@ export const createEvent = async (req, res) => {
     }
 
     if (!capacity) capacity = "none";
+
+    if (coverImg) {
+      const uploadedResponse = await cloudinary.uploader.upload(coverImg, {
+        folder: "event_cover_images",
+      });
+      coverImg = uploadedResponse.secure_url;
+    }
 
     const newEvent = Event({
       title,

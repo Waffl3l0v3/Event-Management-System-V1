@@ -38,6 +38,7 @@ const eventSchema = new mongoose.Schema(
     },
     coverImg: {
       type: String,
+      default: "",
     },
     price: {
       type: Number,
@@ -47,12 +48,6 @@ const eventSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-
-    // category: {
-    //   type: String
-    // },
-
-    // tags: [String],
     comments: [
       {
         _id: {
@@ -84,6 +79,12 @@ const eventSchema = new mongoose.Schema(
         ],
       },
     ],
+    
+    // category: {
+    //   type: String
+    // },
+
+    // tags: [String],
   },
   {
     timestamps: true,

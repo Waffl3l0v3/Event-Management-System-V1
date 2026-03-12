@@ -58,7 +58,7 @@ export const registerForEvent = async (req, res) => {
   }
 };
 
-// Cancel event registration.
+// Cancel event registration. adds next user in waitlist if exists.
 export const cancelRegistration = async (req, res) => {
   try {
     const user = req.user;
@@ -122,7 +122,7 @@ export const getEventRegistrations = async (req, res) => {
   return res.status(200).json({ users: users });
 };
 
-// Checks if current user is registered.
+// returns registration status for user and event:registered, waitlisted or not registered.
 export const checkRegistrationStatus = async (req, res) => {
   try {
     const user = req.user;
