@@ -28,7 +28,7 @@ const eventSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["draft","upcoming","completed","cancelled"],
+      enum: ["draft", "upcoming", "completed", "cancelled"],
     },
     organiser: {
       type: mongoose.Schema.Types.ObjectId,
@@ -55,6 +55,10 @@ const eventSchema = new mongoose.Schema(
     // tags: [String],
     comments: [
       {
+        _id: {
+          type: mongoose.Schema.Types.ObjectId,
+          default: () => new mongoose.Types.ObjectId(),
+        },
         user: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "User",
@@ -69,15 +73,15 @@ const eventSchema = new mongoose.Schema(
           default: Date.now,
         },
         // likes: {
-          // type: Number,
-          // default: 0,
+        // type: Number,
+        // default: 0,
         // },
         likes: [
           {
-         type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-        }
-      ],
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+          },
+        ],
       },
     ],
   },

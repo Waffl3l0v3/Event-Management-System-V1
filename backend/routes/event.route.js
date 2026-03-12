@@ -8,6 +8,7 @@ import {
   deleteComment,
   addComment,
   getEventsByOrganizer,
+  likeUnlikeComment,
 } from "../controllers/event.controller.js";
 import { protectRoute } from "../middleware/protectRoute.js";
 
@@ -20,8 +21,9 @@ router.get("/:id", viewEvent);
 router.patch("/:id", protectRoute, updateEvent);
 router.delete("/:id", protectRoute, deleteEvent);
 
-router.post("/comment/:id", protectRoute, addComment);
+router.post("/comment/:eventId", protectRoute, addComment);
 router.delete("/comment/:eventId/:commentId", protectRoute, deleteComment);
+router.post("/comment-like-unlike/:eventId/:commentId", protectRoute, likeUnlikeComment);
 
 router.get("/organizer/:id", getEventsByOrganizer);
 

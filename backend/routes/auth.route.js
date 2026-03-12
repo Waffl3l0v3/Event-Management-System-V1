@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post("/register", register);
 router.post("/login", login);
-router.get("/logout", logout);
+router.get("/logout", protectRoute, logout);
 router.post("/refresh", refreshToken);
 router.post("/google", googleAuth);
 
