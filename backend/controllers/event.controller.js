@@ -223,7 +223,12 @@ export const getAllEvents = async (req, res) => {
 // add comment to event
 export const addComment = async (req, res) => {
   const user = req.user;
+
+  if (!req.params.eventId) {
+      return res.status(404).json({ message: "Event not found" });
+    }
   const { text } = req.body;
+  
   const event = await Event.findByIdAndUpdate(
     req.params.eventId,
     {

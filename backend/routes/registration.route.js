@@ -19,6 +19,6 @@ router.get("/me", protectRoute, getUserRegistrations);
 // Gets all users registered for an event.
 router.get("/event/:id", protectRoute, getEventRegistrations);
 
-router.get("/check/:id", protectRoute, checkRegistrationStatus);
+router.get("/check/:eventId", protectRoute, checkRegistrationStatus);
 
 export default router;
