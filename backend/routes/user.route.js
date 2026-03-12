@@ -11,8 +11,8 @@ router.patch("/complete-profile", protectRoute, completeProfile);
 
 router.get("/:id", getUserById);
 
-router.post("/follow/:id", protectRoute, followUser);
-router.post("/unfollow/:id", protectRoute, unfollowUser);
+router.post("/follow-unfollow/:id", protectRoute, followUser);
+//router.post("/unfollow/:id", protectRoute, unfollowUser);
 
 router.get("/followers/:id", getFollowers);
 router.get("/following/:id", getFollowing);
