@@ -1,6 +1,4 @@
-import mongoose from "mongoose";
 import User from "../models/user.model.js";
-import { userInfo } from "os";
 
 // Fetch logged‑in user's profile.
 export const getUserProfile = async (req, res) => {
@@ -97,7 +95,7 @@ export const completeProfile = async (req, res) => {
 };
 
 // Follow/unfollow another user
-export const follow_unfollowUser = async (req, res) => {
+export const followUnfollowUser = async (req, res) => {
   try {
     const user = req.user;
     const userToFollow = await User.findById(req.params.id);
@@ -121,9 +119,6 @@ export const follow_unfollowUser = async (req, res) => {
     res.status(500).json({ message: "Error in follow/unfollow controller" });
   }
 };
-
-// Unfollow a user.
-//export const unfollowUser = async (req, res) => {};
 
 // Get list of followers.
 export const getFollowers = async (req, res) => {

@@ -25,7 +25,7 @@ router.post("/comment/:eventId", protectRoute, addComment);
 router.delete("/comment/:eventId/:commentId", protectRoute, deleteComment);
 router.post("/comment-like-unlike/:eventId/:commentId", protectRoute, likeUnlikeComment);
 
-router.get("/organizer/:id", getEventsByOrganizer);
+router.get("/organizer/:orgId", getEventsByOrganizer);
 
 // router.post("/login", login);
 // router.get("/logout", logout);

@@ -30,7 +30,7 @@ const eventSchema = new mongoose.Schema(
       type: String,
       enum: ["draft", "upcoming", "completed", "cancelled"],
     },
-    organiser: {
+    organizer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,

@@ -55,7 +55,7 @@ export const createEvent = async (req, res) => {
       price,
       capacity,
       status: "upcoming",
-      organiser: user._id,
+      organizer: user._id,
       coverImg: coverImg,
     });
     if (newEvent) {
@@ -69,7 +69,7 @@ export const createEvent = async (req, res) => {
         price: newEvent.price,
         capacity: newEvent.capacity,
         status: "upcoming",
-        organiser: user._id,
+        organizer: user._id,
         coverImg: coverImg,
       });
     } else {
@@ -91,7 +91,7 @@ export const deleteEvent = async (req, res) => {
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
-    if (event.organiser.toString() != user._id.toString()) {
+    if (event.organizer.toString() != user._id.toString()) {
       return res
         .status(404)
         .json({ message: "You are not authorized to delete this event" });
@@ -111,7 +111,7 @@ export const updateEvent = async (req, res) => {
     const user = req.user;
     console.log(user);
     console.log(event);
-    if (event.organiser.toString() != user._id.toString()) {
+    if (event.organizer.toString() != user._id.toString()) {
       return res
         .status(400)
         .json({ message: "You are not authorized to update this event" });
@@ -151,7 +151,7 @@ export const updateEvent = async (req, res) => {
       location: event.location,
       price: event.price,
       capacity: event.capacity,
-      organiser: user._id,
+      organizer: user._id,
       coverImg: event.coverImg,
     };
     return res
@@ -186,7 +186,7 @@ export const viewEvent = async (req, res) => {
       registeredCount: event.registeredCount,
       status: event.status,
       price: event.price,
-      organiser: event.organiser,
+      organizer: event.organizer,
       coverImg: event.coverImg,
     });
   } catch (error) {
@@ -200,8 +200,8 @@ export const getEventsByOrganizer = async (req, res) => {
   try {
     // organizer should only see events they created
     // prefer using authenticated user instead of passing id in params
-    const userId = req.user ? req.user._id : req.params.id;
-    const events = await Event.find({ organiser: userId });
+    const userId = req.user ? req.user._id : req.params.orgId;
+    const events = await Event.find({ organizer: userId });
     return res.status(200).json({ events });
   } catch (error) {
     console.log("Error in getMyEvents controller", error);
