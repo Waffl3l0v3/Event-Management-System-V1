@@ -213,8 +213,9 @@ export const getEventsByOrganizer = async (req, res) => {
 export const getAllEvents = async (req, res) => {
   try {
     const events = await Event.find();
-    const today = new Date();
-    for (let i = 0; i < array.length; i++) {
+    console.log(events);
+    const today = new Date(); 
+    for (let i = 0; i < events.length; i++) {
       if (events[i].date > today && events[i].status !== "completed") {
         events[i].status = "completed";
         await events[i].save();
@@ -222,6 +223,7 @@ export const getAllEvents = async (req, res) => {
     }
     return res.status(200).json({ events: events });
   } catch (error) {
+    console.log(error)
     console.log("error in get all events controller");
     res.status(500).json({ message: "Internal server error" });
   }
