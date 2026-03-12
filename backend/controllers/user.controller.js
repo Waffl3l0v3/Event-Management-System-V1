@@ -96,8 +96,8 @@ export const completeProfile = async (req, res) => {
   }
 };
 
-// Follow another user
-export const followUser = async (req, res) => {
+// Follow/unfollow another user
+export const follow_unfollowUser = async (req, res) => {
   try {
     const user = req.user;
     const userToFollow = await User.findById(req.params.id);
@@ -123,10 +123,26 @@ export const followUser = async (req, res) => {
 };
 
 // Unfollow a user.
-export const unfollowUser = async (req, res) => {};
+//export const unfollowUser = async (req, res) => {};
 
 // Get list of followers.
-export const getFollowers = async (req, res) => {};
+export const getFollowers = async (req, res) => {
+  try {
+    const user = req.user;
+    return res.status(200).json({ followers: user.followers.username });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 
 // Get users being followed.
-export const getFollowing = async (req, res) => {};
+export const getFollowing = async (req, res) => {
+  try {
+    const user = req.user;
+    return res.status(200).json({ following: user.following });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
