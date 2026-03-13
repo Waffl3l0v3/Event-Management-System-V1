@@ -86,8 +86,8 @@ export const deleteEvent = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
     const user = req.user;
-    console.log(event);
-    console.log(user);
+    // console.log(event);
+    // console.log(user);
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
@@ -109,8 +109,8 @@ export const updateEvent = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
     const user = req.user;
-    console.log(user);
-    console.log(event);
+    // console.log(user);
+    // console.log(event);
     if (event.organizer.toString() != user._id.toString()) {
       return res
         .status(400)
@@ -214,15 +214,16 @@ export const getAllEvents = async (req, res) => {
   try {
     const events = await Event.find();
     const today = new Date();
-    for (let i = 0; i < array.length; i++) {
-      if (events[i].date > today && events[i].status !== "completed") {
-        events[i].status = "completed";
-        await events[i].save();
-      }
-    }
+    // for (let i = 0; i < array.length; i++) {
+    //   if (events[i].date > today && events[i].status !== "completed") {
+    //     events[i].status = "completed";
+    //     await events[i].save();
+    //   }
+    // }
     return res.status(200).json({ events: events });
   } catch (error) {
-    console.log("error in get all events controller");
+    // console.log("error in get all events controller");
+    console.log(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -249,7 +250,7 @@ export const addComment = async (req, res) => {
     { new: true },
   );
 
-  console.log(event);
+  // console.log(event);
   return res.status(200).json({ message: "comment added successfully" });
 };
 
