@@ -213,7 +213,7 @@ export const getEventsByOrganizer = async (req, res) => {
 export const getAllEvents = async (req, res) => {
   try {
     const events = await Event.find();
-    console.log(events);
+    //console.log(events);
     const today = new Date(); 
     for (let i = 0; i < events.length; i++) {
       if (events[i].date > today && events[i].status !== "completed") {
