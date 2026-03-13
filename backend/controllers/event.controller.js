@@ -1,18 +1,12 @@
 import Event from "../models/event.model.js";
-import Registration from "../models/registration.model.js";
+import User from "../models/user.model.js";
+import { createNotification } from "./notification.controller.js";
 
 // Create a new event.
 export const createEvent = async (req, res) => {
   try {
-    const {
-      title,
-      description,
-      date,
-      location,
-      price,
-      capacity,
-    } = req.body;
-    let {coverImg} = req.body;
+    const { title, description, date, location, price, capacity } = req.body;
+    let { coverImg } = req.body;
     const user = req.user;
 
     // const isValid = await validateLocation(location);
@@ -72,12 +66,61 @@ export const createEvent = async (req, res) => {
         organizer: user._id,
         coverImg: coverImg,
       });
+      const attendees = await User.find({
+        role: "attendee",
+      });
+
+      for (const attendee of attendees) {
+        await createNotification({
+          userId: attendee._id,
+          notificationType: "event_update",
+          message: `Hey ${attendee.username}, ${user.username} just created an event. Check it out!`,
+          fromUserId: user._id,
+          // link:`/events/${newEvent._id}`
+        });
+      }
     } else {
       res.status(400).json({ error: "Invalid event details" });
     }
   } catch (error) {
     console.log("Error in create event controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// cancel event
+export const cancelEvent = async (req, res) => {
+  try {
+    const user = req.user;
+    const event = await Event.findById(req.params.id);
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    if (event.organizer.toString() !== user._id.toString()) {
+      return res.status(403).json({
+        message: "You are not authorized to cancel this event",
+      });
+    }
+
+    if (event.status === "cancelled") {
+      return res.status(400).json({
+        message: "Event is already cancelled",
+      });
+    }
+
+    event.status = "cancelled";
+    await event.save();
+
+    return res.status(200).json({
+      message: "Event cancelled successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Error cancelling event",
+    });
   }
 };
 
@@ -93,8 +136,14 @@ export const deleteEvent = async (req, res) => {
     }
     if (event.organizer.toString() != user._id.toString()) {
       return res
-        .status(404)
+        .status(403)
         .json({ message: "You are not authorized to delete this event" });
+    }
+
+    if (event.status != "cancelled") {
+      return res
+        .status(409)
+        .json({ message: "Please cancel event before deleting" });
     }
     await Event.findByIdAndDelete(req.params.id);
     return res.status(200).json({ message: "Event deleted successfully" });
@@ -154,6 +203,22 @@ export const updateEvent = async (req, res) => {
       organizer: user._id,
       coverImg: event.coverImg,
     };
+
+    const attendees = await Registration.find({
+      eventId: event._id,
+      status: "registered",
+    });
+
+    for (const reg of attendees) {
+      await createNotification({
+        userId: reg.userId,
+        notificationType: "event_update",
+        message: `Event ${event.title} was updated`,
+        eventId: event._id,
+        // link:`/event/${event._id}`
+      });
+    }
+
     return res
       .status(200)
       .json({ msg: "Event Succesfully updated", data: data });
@@ -214,7 +279,7 @@ export const getAllEvents = async (req, res) => {
   try {
     const events = await Event.find();
     //console.log(events);
-    const today = new Date(); 
+    const today = new Date();
     for (let i = 0; i < events.length; i++) {
       if (events[i].date > today && events[i].status !== "completed") {
         events[i].status = "completed";
@@ -223,7 +288,7 @@ export const getAllEvents = async (req, res) => {
     }
     return res.status(200).json({ events: events });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     console.log("error in get all events controller");
     res.status(500).json({ message: "Internal server error" });
   }
@@ -231,28 +296,45 @@ export const getAllEvents = async (req, res) => {
 
 // add comment to event
 export const addComment = async (req, res) => {
-  const user = req.user;
+  try {
+    const user = req.user;
+    const { eventId } = req.params;
+    const { text } = req.body;
 
-  if (!req.params.eventId) {
-      return res.status(404).json({ message: "Event not found" });
-    }
-  const { text } = req.body;
-  
-  const event = await Event.findByIdAndUpdate(
-    req.params.eventId,
-    {
-      $push: {
-        comments: {
-          user: user._id,
-          text: text,
+    const event = await Event.findByIdAndUpdate(
+      eventId,
+      {
+        $push: {
+          comments: {
+            user: user._id,
+            text: text,
+          },
         },
       },
-    },
-    { new: true },
-  );
+      { new: true },
+    );
 
-  // console.log(event);
-  return res.status(200).json({ message: "comment added successfully" });
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    // create notification for organizer
+    if (event.organiser.toString() !== user._id.toString()) {
+      await createNotification({
+        userId: event.organiser,
+        message: `${user.username} commented on your event`,
+        notificationType: "comment",
+        eventId: event._id,
+        fromUserId: user._id,
+        // link: `/events/${event._id}`,
+      });
+    }
+
+    return res.status(200).json({ message: "Comment added successfully" });
+  } catch (error) {
+    console.log("Error adding comment", error);
+    return res.status(500).json({ message: "Server error" });
+  }
 };
 
 // delete commenet from event
@@ -283,11 +365,10 @@ export const deleteComment = async (req, res) => {
   return res.status(200).json({ message: "comment deleted successfully" });
 };
 
+// like/unlike someone's comment
 export const likeUnlikeComment = async (req, res) => {
   try {
     const user = req.user;
-    // console.log("req.user =", user._id);
-    
     const { eventId, commentId } = req.params;
 
     const event = await Event.findById(eventId);
@@ -306,14 +387,23 @@ export const likeUnlikeComment = async (req, res) => {
       (id) => id.toString() === user._id.toString(),
     );
 
-    // const alreadyLiked = comment.likes.includes(userId);
-
     if (alreadyLiked) {
       // unlike
       comment.likes.pull(user._id);
     } else {
       // like
       comment.likes.push(user._id);
+
+      // don't notify yourself
+      if (comment.user.toString() !== user._id.toString()) {
+        await createNotification({
+          userId: comment.user,
+          type: "like",
+          message: `${user.username} liked your comment!`,
+          fromUserId: user._id,
+          eventId: event._id,
+        });
+      }
     }
 
     await event.save();

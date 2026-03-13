@@ -29,6 +29,7 @@ const eventSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["draft", "upcoming", "completed", "cancelled"],
+      default:"upcoming"
     },
     organizer: {
       type: mongoose.Schema.Types.ObjectId,
@@ -50,10 +51,6 @@ const eventSchema = new mongoose.Schema(
     },
     comments: [
       {
-        commentId: {
-          type: mongoose.Schema.Types.ObjectId,
-          default: () => new mongoose.Types.ObjectId(),
-        },
         // mongoose automatically creates _id for every subdocument
         // commentId: {
         //   type: mongoose.Schema.Types.ObjectId,

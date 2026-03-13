@@ -39,7 +39,8 @@ export const getUserById = async (req, res) => {
 // Update username, contact, profile image, etc.
 export const updateUserProfile = async (req, res) => {
   try {
-    const { name, username, email, password, contact, bio, profileImg } = req.body;
+    const { name, username, email, password, contact, bio, profileImg } =
+      req.body;
     const user = req.user;
     console.log(user);
 
@@ -104,18 +105,28 @@ export const followUnfollowUser = async (req, res) => {
   try {
     const user = req.user;
     const userToFollow = await User.findById(req.params.id);
-    if (user._id.toString() === userToFollow._id.toString()) { 
+    if (user._id.toString() === userToFollow._id.toString()) {
       return res.status(400).json({ message: "Cannot follow yourself" });
     }
     const alreadyFollows = user.following.includes(userToFollow._id);
     if (alreadyFollows) {
-      //unfollow
+      // unfollow
+
       user.following.pull(userToFollow._id);
       userToFollow.followers.pull(user._id);
     } else {
-      //follow
+      // follow
+
       user.following.push(userToFollow._id);
       userToFollow.followers.push(user._id);
+
+      await createNotification({
+        userId: userToFollow._id,
+        type: "follow",
+        message: `${user.username} followed you`,
+        fromUserId: user._id,
+        // link:`/user/${user._id}`
+      });
     }
     await user.save();
     await userToFollow.save();
@@ -143,7 +154,7 @@ export const getFollowers = async (req, res) => {
 export const getFollowing = async (req, res) => {
   try {
     const user = req.user;
-    return res.status(200).json({ "following": user.following });
+    return res.status(200).json({ following: user.following });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal Server Error" });

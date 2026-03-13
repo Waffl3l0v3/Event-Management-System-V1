@@ -1,5 +1,6 @@
 import Registration from "../models/registration.model.js";
 import Event from "../models/event.model.js";
+import { createNotification } from "./notification.controller.js";
 
 // Register user for event.
 export const registerForEvent = async (req, res) => {
@@ -19,12 +20,6 @@ export const registerForEvent = async (req, res) => {
     });
 
     if (existingRegistration) {
-      return res.status(400).json({
-        message: "User already registered for this event",
-      });
-    }
-
-    if (existingRegistration && existingRegistration.status === "registered") {
       return res.status(400).json({
         message: "User already registered for this event",
       });
@@ -55,6 +50,14 @@ export const registerForEvent = async (req, res) => {
 
     // increment event registration count
     await Event.findByIdAndUpdate(event._id, { $inc: { registeredCount: 1 } });
+
+    await createNotification({
+      userId: event.organiser,
+      type: "registration",
+      message: `${user.username} registered for your event`,
+      fromUserId: user._id,
+      eventId: event._id,
+    });
 
     return res.status(201).json({
       message: "Successfully registered",
@@ -89,10 +92,19 @@ export const cancelRegistration = async (req, res) => {
       eventId: eventId,
       status: "waitlisted",
     }).sort({ registered_at: 1 });
+    const event = await Event.findById(eventId);
 
     if (nextUser) {
       nextUser.status = "registered";
       await nextUser.save();
+
+      await createNotification({
+        userId: nextUser.userId,
+        type: "registration",
+        message: `You have been moved from waitlist and registered for ${event.title}`,
+        eventId: event._id,
+        fromUserId: event.organizer,
+      });
     }
 
     return res.status(200).json({
@@ -129,14 +141,13 @@ export const getEventRegistrations = async (req, res) => {
 
     const registrations = await Registration.find({
       eventId: eventId,
-      status: "registered"
+      status: "registered",
     }).populate({
       path: "userId",
-      select: "name username email profileImg"
+      select: "name username email profileImg",
     });
 
     return res.status(200).json({ users: registrations });
-
   } catch (error) {
     console.log("Error fetching event registrations", error);
     return res.status(500).json({ message: "Internal Server Error" });

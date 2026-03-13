@@ -1,25 +1,27 @@
 import Notification from "../models/notification.model.js";
 
 // Create notification for user.
-export const createNotification = async (req, res) => {
+export const createNotification = async ({
+  userId,
+  message,
+  notificationType,
+  eventId = null,
+  fromUserId = null,
+  link = null,
+}) => {
   try {
-    const { message, notificationType, eventId = "", fromUserId, link } = req.body;
-
-    const userId = req.user;
-
     const notification = await Notification.create({
       userId,
       message,
       notificationType,
       eventId,
       fromUserId,
-      link
+      link,
     });
 
-    res.status(201).json(notification);
+    return notification;
   } catch (error) {
     console.log("Error creating notification", error);
-    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
