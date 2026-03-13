@@ -49,7 +49,27 @@ export const updateUserProfile = async (req, res) => {
     if (email) user.email = email;
     if (contact) user.contact = contact;
     if (bio) user.bio = bio;
-    if (profileImg) user.profileImg = profileImg;
+
+    if (profileImg) {
+      // destroy old image
+      if (user.profileImg) {
+        const publicId = user.profileImg
+          .split("/")
+          .slice(-2)
+          .join("/")
+          .split(".")[0];
+
+        await cloudinary.uploader.destroy(publicId);
+      }
+
+      // upload new image
+      const uploadedResponse = await cloudinary.uploader.upload(profileImg, {
+        folder: "profile_images",
+      });
+      profileImg = uploadedResponse.secure_url;
+
+      user.profileImg = profileImg;
+    }
 
     if (password) {
       const salt = await bcrypt.genSalt(10);
@@ -78,9 +98,13 @@ export const completeProfile = async (req, res) => {
 
     if (profileImg) {
       if (user.coverImg) {
-        await cloudinary.uploader.destroy(
-          user.coverImg.split("/").pop().split(".")[0],
-        );
+        const publicId = user.profileImg
+          .split("/")
+          .slice(-2)
+          .join("/")
+          .split(".")[0];
+
+        await cloudinary.uploader.destroy(publicId);
       }
 
       const uploadedResponse = await cloudinary.uploader.upload(profileImg, {

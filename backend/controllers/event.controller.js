@@ -9,11 +9,11 @@ export const createEvent = async (req, res) => {
     let { coverImg } = req.body;
     const user = req.user;
 
-    // const isValid = await validateLocation(location);
-
-    // if (!isValid) {
-    //     return res.status(400).json({error: "Invalid event location"});
-    // }
+    if (user.role != "organizer") {
+      return res.status(403).json({
+        message: "Log in with organizer account to create and event!",
+      });
+    }
 
     if (description.length < 30) {
       return res
@@ -183,6 +183,11 @@ export const updateEvent = async (req, res) => {
     if (eventDate < today) {
       return res.status(400).json({ message: "Event cannot be in the past" });
     }
+    if (description.length < 30) {
+      return res
+        .status(400)
+        .json({ error: "Description length should be minimum 30 characters" });
+    }
 
     event.title = new_title || event.title;
     event.description = new_description || event.description;
@@ -190,7 +195,26 @@ export const updateEvent = async (req, res) => {
     event.location = new_location || event.location;
     event.price = new_price || event.price;
     event.capacity = new_capacity || event.capacity;
-    event.coverImg = new_coverImg || event.coverImg;
+
+    if (coverImg) {
+      // destroy old image
+      if (user.coverImg) {
+        const publicId = user.coverImg
+          .split("/")
+          .slice(-2)
+          .join("/")
+          .split(".")[0];
+
+        await cloudinary.uploader.destroy(publicId);
+      }
+
+      // upload new image
+      const uploadedResponse = await cloudinary.uploader.upload(coverImg, {
+        folder: "event_cover_images",
+      });
+      user.coverImg = uploadedResponse.secure_url;
+    }
+
     await event.save();
     const data = {
       id: event._id,
