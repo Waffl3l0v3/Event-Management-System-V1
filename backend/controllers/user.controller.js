@@ -39,16 +39,21 @@ export const getUserById = async (req, res) => {
 // Update username, contact, profile image, etc.
 export const updateUserProfile = async (req, res) => {
   try {
-    const { name, username, email, password, contact, bio, profileImg } =
-      req.body;
-    const user = await User.findById(req.params.id);
-    user.name = name || user.name;
-    user.username = username || user.username;
-    user.email = email || user.email;
-    user.password = password || user.password;
-    user.contact = contact || user.contact;
-    user.bio = bio || user.bio;
-    user.profileImg = profileImg || user.profileImg;
+    const { name, username, email, password, contact, bio, profileImg } = req.body;
+    const user = req.user;
+    console.log(user);
+
+    if (name) user.name = name;
+    if (username) user.username = username;
+    if (email) user.email = email;
+    if (contact) user.contact = contact;
+    if (bio) user.bio = bio;
+    if (profileImg) user.profileImg = profileImg;
+
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
+    }
     await user.save();
     console.log(user);
     res.status(200).json({ message: "User profile updated successfully" });
@@ -99,6 +104,9 @@ export const followUnfollowUser = async (req, res) => {
   try {
     const user = req.user;
     const userToFollow = await User.findById(req.params.id);
+    if (user._id.toString() === userToFollow._id.toString()) { 
+      return res.status(400).json({ message: "Cannot follow yourself" });
+    }
     const alreadyFollows = user.following.includes(userToFollow._id);
     if (alreadyFollows) {
       //unfollow
@@ -135,7 +143,7 @@ export const getFollowers = async (req, res) => {
 export const getFollowing = async (req, res) => {
   try {
     const user = req.user;
-    return res.status(200).json({ following: user.following });
+    return res.status(200).json({ "following": user.following });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal Server Error" });

@@ -13,8 +13,8 @@ router.get("/:id", getUserById);
 
 router.post("/follow-unfollow/:id", protectRoute, followUnfollowUser);
 
-router.get("/followers/:id", getFollowers);
-router.get("/following/:id", getFollowing);
+router.get("/followers/:id", protectRoute, getFollowers);
+router.get("/following/:id", protectRoute, getFollowing);
 
 
 export default router;
