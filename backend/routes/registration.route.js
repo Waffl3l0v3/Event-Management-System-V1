@@ -11,7 +11,7 @@ import {
 const router = express.Router();
 
 router.delete("/:id", protectRoute, cancelRegistration);
-router.post("/:id", protectRoute, registerForEvent);
+router.post("/:eventId", protectRoute, registerForEvent);
 
 // get all events the authenticated user has registered for
 router.get("/me", protectRoute, getUserRegistrations);

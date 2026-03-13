@@ -2,9 +2,7 @@ import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
 import client from "../config/googleClient.js";
-// export const routeName1= async (req, res) => {
-// 	// body
-// };
+import jwt from "jsonwebtoken";
 
 export const register = async (req, res) => {
   try {
@@ -56,7 +54,7 @@ export const register = async (req, res) => {
       password: hashedPassword,
       contact: contact,
       profileImg: profileImg,
-      authProvider: "local"
+      authProvider: "local",
     });
 
     //Generate token and set cookie. Save user in db.
@@ -106,7 +104,6 @@ export const login = async (req, res) => {
       contact: user.contact,
       profileImg: user.profileImg,
     });
-    
   } catch (error) {
     console.log("Error in login controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
@@ -115,7 +112,18 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    res.cookie("jwt", "", { maxAge: 0 });
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV !== "development",
+    });
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV !== "development",
+    });
+
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     console.log("Error in logout controller", error.message);
@@ -124,17 +132,38 @@ export const logout = async (req, res) => {
 };
 
 export const refreshToken = async (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
+  try {
+    const refreshTokenCookie = req.cookies.refreshToken;
 
-  const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
+    if (!refreshTokenCookie) {
+      return res.status(401).json({ message: "No refresh token provided" });
+    }
 
-  const newAccessToken = jwt.sign(
-    { id: decoded.id },
-    process.env.ACCESS_SECRET,
-    { expiresIn: "15m" },
-  );
+    const decoded = jwt.verify(refreshTokenCookie, process.env.REFRESH_SECRET);
 
-  res.json({ accessToken: newAccessToken });
+    const newAccessToken = jwt.sign(
+      { id: decoded.id },
+      process.env.ACCESS_SECRET,
+      { expiresIn: "15m" },
+      // { expiresIn: "30s" },
+    );
+
+    res.cookie("accessToken", newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== "development",
+      sameSite: "strict",
+      maxAge: 15 * 60 * 1000
+      // maxAge: 30 * 1000,
+    });
+
+    res.json({ accessToken: newAccessToken });
+  } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Refresh token expired" });
+    }
+
+    return res.status(401).json({ message: "Invalid refresh token" });
+  }
 };
 
 export const googleAuth = async (req, res) => {
@@ -146,7 +175,7 @@ export const googleAuth = async (req, res) => {
     }
     const ticket = await client.verifyIdToken({
       idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID
+      audience: process.env.GOOGLE_CLIENT_ID,
     });
 
     const payload = ticket.getPayload();
@@ -168,21 +197,17 @@ export const googleAuth = async (req, res) => {
           profileImg: picture,
           googleId: sub,
           profileCompleted: false,
-          authProvider: "google"
+          authProvider: "google",
         });
       }
     }
 
-    const accessToken = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "15m" }
-    );
+    const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "15m",
+    });
 
-    res.json({ accessToken, user,profileCompleted: user.profileCompleted });
-
+    res.json({ accessToken, user, profileCompleted: user.profileCompleted });
   } catch (err) {
     res.status(401).json({ message: "Google authentication failed" });
   }
 };
-

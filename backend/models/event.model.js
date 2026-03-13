@@ -54,6 +54,11 @@ const eventSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           default: () => new mongoose.Types.ObjectId(),
         },
+        // mongoose automatically creates _id for every subdocument
+        // commentId: {
+        //   type: mongoose.Schema.Types.ObjectId,
+        //   default: () => new mongoose.Types.ObjectId(),
+        // },
         user: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "User",
