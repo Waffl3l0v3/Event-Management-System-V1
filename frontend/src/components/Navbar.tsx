@@ -1,19 +1,25 @@
-import LoginModal from "./LoginModal";
+import AuthModal from "./AuthModal";
 
-export default function Navbar() {
+export default function Navbar({ user }) {
   return (
-    <div className="navbar bg-base-100 shadow-sm">
+    <div className="navbar bg-base-100 shadow-sm px-4">
+
       <div className="navbar-start">
-        <div className="flex-1">
-          <a className="btn btn-ghost text-xl">EMS</a>
-        </div>
+        <a className="btn btn-ghost text-xl">EMS</a>
       </div>
 
-      {/* <div className="navbar-end">
-            <a href="/login" className="btn btn-outline btn-primary mr-3">Login</a>
-      </div> */}
-          <LoginModal />
-          
+      <div className="navbar-end">
+
+        {user ? (
+          <span className="mr-3 font-semibold">
+            {user.username}
+          </span>
+        ) : (
+          <AuthModal />
+        )}
+
+      </div>
+
     </div>
   );
 }
