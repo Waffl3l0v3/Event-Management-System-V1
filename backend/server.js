@@ -3,7 +3,7 @@ import express from "express"
 import dotenv from "dotenv"
 import cookieParser from "cookie-parser"
 import {connectDB} from "./config/connectMongoDB.js";
-
+import cors from 'cors';
 import authRoutes from "./routes/auth.route.js"
 import eventRoutes from "./routes/event.route.js"
 import registrationRoutes from './routes/registration.route.js'
@@ -27,6 +27,15 @@ app.use('/api/registration', registrationRoutes);
 app.use('/api/notification', notificationRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/payment', paymentRoutes);
+
+app.use(
+	cors({
+		origin: "https://localhost:3000",
+		credentials: true
+		
+	})
+);
+
 
 // if (process.env.NODE_ENV ==	= "production") {
 // 	app.use(express.static(path.join(__dirname, "/frontend/dist")));
