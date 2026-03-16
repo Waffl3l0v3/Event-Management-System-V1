@@ -37,8 +37,8 @@ export default function Navbar() {
               </div>
             </div>
             
-            <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
-              <li className="menu-title px-4 py-2 opacity-60 break-words">{user.email}</li>
+            <ul tabIndex={0} className="mt-3 z-1 p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
+              <li className="menu-title px-4 py-2 opacity-60 wrap-break-word">{user.email}</li>
               <li><Link to="/profile">Profile</Link></li>
               <li><button onClick={handleLogout} className="text-red-500 hover:bg-red-50">Logout</button></li>
             </ul>
