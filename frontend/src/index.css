@@ -1,2 +1,8 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: pastel, dark; /* only valentine + dark */
+  // optional:
+  // root: ":root";
+  // prefix: daisy-;
+  // logs: false;
+}

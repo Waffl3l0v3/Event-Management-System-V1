@@ -1,10 +1,5 @@
 import axios from "axios";
 
-const API = axios.create({
-  baseURL: "/api",
-  withCredentials: true
-});
-
 // // 🔹 Add token to headers automatically for every request
 // API.interceptors.request.use((req) => {
 //   const token = localStorage.getItem("accessToken");
@@ -15,11 +10,23 @@ const API = axios.create({
 // });
 
 // Auth Routes
-export const loginUser = (data) => API.post("/auth/login", data);
-export const registerUser = (data) => API.post("/auth/register", data);
-export const googleLogin = (token) => API.post("/auth/google", { token });
-export const logoutUser = () => API.post("/auth/logout"); 
-export const fetchCurrentUser = () => API.get("/auth/me"); 
+
+const API_auth = axios.create({
+  baseURL: "/api/auth",
+  withCredentials: true
+});
+
+export const loginUser = (data) => API_auth.post("/login", data);
+export const registerUser = (data) => API_auth.post("/register", data);
+export const googleLogin = (token) => API_auth.post("/google", { token });
+export const logoutUser = () => API_auth.get("/logout"); 
+export const fetchCurrentUser = () => API_auth.get("/me"); 
 
 // User Routes
-export const updateUserProfile = (data) => API.patch("/user/profile", data);
+const API_user = axios.create({
+  baseURL: "/api/user",
+  withCredentials: true
+});
+
+export const updateUserProfile = (data) => API_user.patch("/profile", data);
+export const getUserProfile = () => API_user.get("/profile");

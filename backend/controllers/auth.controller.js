@@ -152,7 +152,7 @@ export const refreshToken = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV !== "development",
       sameSite: "strict",
-      maxAge: 15 * 60 * 1000
+      maxAge: 15 * 60 * 1000,
       // maxAge: 30 * 1000,
     });
 
@@ -182,38 +182,38 @@ export const googleAuth = async (req, res) => {
 
     const { sub, email, name, picture } = payload;
 
-    let user = await User.findOne({ googleId: sub });
+    let user = await User.findOne({ email });
 
     if (!user) {
-      user = await User.findOne({ email });
-
-      if (user) {
-        user.googleId = sub;
-        await user.save();
-      } else {
-        user = await User.create({
-          name,
-          email,
-          profileImg: picture,
-          googleId: sub,
-          profileCompleted: false,
-          authProvider: "google",
-        });
-      }
+      user = await User.create({
+        name:name,
+        email:email,
+        profileImg: picture,
+        googleId: sub,
+        profileCompleted: false,
+        authProvider: "google",
+      });
+    } else if (!user.googleId) {
+      // existing user linking google account
+      user.googleId = sub;
+      await user.save();
     }
 
     const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "15m",
     });
 
-    res.json({ accessToken, user, profileCompleted: user.profileCompleted });
+    res.json({
+      accessToken,
+      user,
+      profileCompleted: user.profileCompleted,
+    });
   } catch (err) {
     res.status(401).json({ message: "Google authentication failed" });
   }
 };
 
 export const getMe = async (req, res) => {
-
   try {
 
     const token = req.cookies.jwt;
@@ -231,5 +231,5 @@ export const getMe = async (req, res) => {
   } catch (error) {
     res.status(401).json({ message: "Invalid token" });
   }
-
 };
+

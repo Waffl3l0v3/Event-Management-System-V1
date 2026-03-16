@@ -2,11 +2,11 @@ import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { loginUser, registerUser, googleLogin } from "../services/authApi.js";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // Import Context
+import { useAuth } from "../context/AuthContext";
 
 export default function AuthModal() {
   const navigate = useNavigate();
-  const { setUser } = useAuth(); // Pull setUser from context
+  const { setUser } = useAuth(); // Pull setUser to update global state
 
   const [mode, setMode] = useState("login");
   const [username, setUsername] = useState("");
@@ -15,6 +15,7 @@ export default function AuthModal() {
   const [loginpassword, setloginPassword] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -23,16 +24,17 @@ export default function AuthModal() {
     try {
       setLoading(true);
       setError("");
-      const res = await loginUser({ username: loginusername, password: loginpassword });
       
-      // 🔹 FIX: Save the token to localStorage!
-      if (res.data.accessToken) {
-        localStorage.setItem("accessToken", res.data.accessToken);
-      }
+      const res = await loginUser({
+        username: loginusername,
+        password: loginpassword,
+      });
 
-      setUser(res.data); // Update global state
+      // 🔹 Backend already set the cookie! Just update React state.
+      setUser(res.data);
+
       document.getElementById("auth_modal")?.close();
-      navigate("/home"); 
+      navigate("/home");
 
     } catch (err: any) {
       setError(err.response?.data?.error || "Login failed");
@@ -45,8 +47,10 @@ export default function AuthModal() {
     try {
       setLoading(true);
       setError("");
+
       await registerUser({ name, username, email, password, role });
-      setMode("login"); // Switch to login screen after successful registration
+      setMode("login"); // Switch to login view
+
     } catch (err: any) {
       setError(err.response?.data?.error || "Register failed");
     } finally {
@@ -57,7 +61,7 @@ export default function AuthModal() {
   const handleGoogleLogin = async (credentialResponse: any) => {
     try {
       const res = await googleLogin(credentialResponse.credential);
-      setUser(res.data); // 🐛 FIX: Update global app state
+      setUser(res.data);
       document.getElementById("auth_modal")?.close();
       navigate("/home");
     } catch (err) {
@@ -66,6 +70,7 @@ export default function AuthModal() {
   };
 
   return (
+    // ... Keep your exact original JSX return block here ...
     <>
       <button
         className="btn"

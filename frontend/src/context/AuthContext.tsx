@@ -1,22 +1,23 @@
 import { createContext, useState, useEffect, useContext } from "react";
-import { fetchCurrentUser, logoutUser } from "../services/authApi.js";
+import {logoutUser, getUserProfile} from "../services/authApi.js"
 
 const AuthContext = createContext<any>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // 🔹 Starts true to block premature redirects
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        // This now automatically sends the token thanks to the interceptor
-        const res = await fetchCurrentUser();
+        // withCredentials: true is MANDATORY for sending the HTTP-only cookie
+        const res = await getUserProfile();
         setUser(res.data);
-      } catch {
+      } catch (err) {
+        console.log("No active session found.");
         setUser(null);
       } finally {
-        setLoading(false);
+        setLoading(false); // 🔹 Allows the app to render the correct page now
       }
     };
     fetchUser();
@@ -24,16 +25,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     try {
-      // 1. Call your backend logout controller (clears httpOnly cookies)
-      await logoutUser(); 
-      
-      // 2. Clear token from local storage
-      localStorage.removeItem("accessToken"); 
-      
-      // 3. Clear global state
+      // Calls your backend logout controller to clear the cookies
+      await logoutUser();
       setUser(null);
     } catch (err) {
-      console.error("Logout API failed:", err);
+      console.error("Logout failed", err);
     }
   };
 

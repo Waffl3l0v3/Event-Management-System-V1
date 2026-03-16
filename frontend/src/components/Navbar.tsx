@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AuthModal from "./authModal"; // Make sure case matches your file
+import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -17,7 +18,9 @@ export default function Navbar() {
         <Link to="/" className="btn btn-ghost text-xl">EMS</Link>
       </div>
 
-      <div className="navbar-end">
+      <div className="navbar-end flex items-center gap-2">
+        <ThemeToggle />
+
         {user ? (
           <div className="dropdown dropdown-end">
             {/* 🔹 Added gap and span to show username next to avatar */}
