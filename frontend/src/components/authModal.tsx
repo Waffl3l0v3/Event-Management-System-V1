@@ -2,80 +2,64 @@ import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { loginUser, registerUser, googleLogin } from "../services/authApi.js";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"; // Import Context
+
 export default function AuthModal() {
   const navigate = useNavigate();
+  const { setUser } = useAuth(); // Pull setUser from context
 
   const [mode, setMode] = useState("login");
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
   const [loginusername, setloginUsername] = useState("");
   const [loginpassword, setloginPassword] = useState("");
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleLogin = async (e) => {
-  e.preventDefault();
+  const handleLogin = async (e: any) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      setError("");
+      const res = await loginUser({ username: loginusername, password: loginpassword });
+      
+      // 🔹 FIX: Save the token to localStorage!
+      if (res.data.accessToken) {
+        localStorage.setItem("accessToken", res.data.accessToken);
+      }
 
-  try {
-    setLoading(true);
-    setError("");
+      setUser(res.data); // Update global state
+      document.getElementById("auth_modal")?.close();
+      navigate("/home"); 
 
-    const res = await loginUser({
-      username:loginusername,
-      password:loginpassword,
-    });
+    } catch (err: any) {
+      setError(err.response?.data?.error || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    console.log("Login success:", res.data);
+  const handleRegister = async (role: string) => {
+    try {
+      setLoading(true);
+      setError("");
+      await registerUser({ name, username, email, password, role });
+      setMode("login"); // Switch to login screen after successful registration
+    } catch (err: any) {
+      setError(err.response?.data?.error || "Register failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    navigate("/home", { state: { res: res.data } });
-
-    document.getElementById("auth_modal")?.close();
-
-  } catch (err) {
-    setError(err.response?.data?.error || "Login failed");
-  } finally {
-    setLoading(false);
-  }
-};
-
-  const handleRegister = async (role) => {
-  try {
-    setLoading(true);
-    setError("");
-
-    const res = await registerUser({
-      name,
-      username,
-      email,
-      password,
-      role,
-    });
-
-    console.log("Register success:", res.data);
-
-    // switch to login mode
-    setMode("login");
-
-  } catch (err) {
-    setError(err.response?.data?.error || "Register failed");
-  } finally {
-    setLoading(false);
-  }
-};
-
-  const handleGoogleLogin = async (credentialResponse) => {
+  const handleGoogleLogin = async (credentialResponse: any) => {
     try {
       const res = await googleLogin(credentialResponse.credential);
-
-      console.log(res.data);
-
-      document.getElementById("auth_modal").close();
+      setUser(res.data); // 🐛 FIX: Update global app state
+      document.getElementById("auth_modal")?.close();
+      navigate("/home");
     } catch (err) {
       console.log(err);
     }

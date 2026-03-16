@@ -1,22 +1,39 @@
-import { Route, Routes } from "react-router-dom"
-import LandingPage from "./pages/LandingPage"
-import HomePage from "./pages/HomePage"
+import { Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext"; // Import Context
+import LandingPage from "./pages/LandingPage";
+import HomePage from "./pages/HomePage";
+import ProfilePage from "./pages/ProfilePage";
 
+// 🔒 New Protected Route Component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="flex h-screen justify-center items-center"><span className="loading loading-spinner loading-lg"></span></div>;
+  if (!user) return <Navigate to="/" replace />;
+  return children;
+};
 
-function App() {
-
+function AppRoutes() {
   return (
-    <>
-      
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/home" element={<HomePage /> } />
-        </Routes>
-        
-      
-     
-    </>
-  )
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/home" element={
+        <ProtectedRoute>
+          <HomePage />
+        </ProtectedRoute>
+      } />
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <ProfilePage />
+        </ProtectedRoute>
+      } />
+    </Routes>
+  );
 }
 
-export default App
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
+  );
+}

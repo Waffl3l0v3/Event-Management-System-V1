@@ -211,3 +211,25 @@ export const googleAuth = async (req, res) => {
     res.status(401).json({ message: "Google authentication failed" });
   }
 };
+
+export const getMe = async (req, res) => {
+
+  try {
+
+    const token = req.cookies.jwt;
+
+    if (!token) {
+      return res.status(401).json({ message: "Not logged in" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.userId).select("-password");
+
+    res.json(user);
+
+  } catch (error) {
+    res.status(401).json({ message: "Invalid token" });
+  }
+
+};
