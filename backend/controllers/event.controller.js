@@ -1,5 +1,6 @@
 import Event from "../models/event.model.js";
 import User from "../models/user.model.js";
+import cloudinary from "../config/cloudinary.js";
 import { createNotification } from "./notification.controller.js";
 
 // Create a new event.

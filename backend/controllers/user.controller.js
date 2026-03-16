@@ -1,4 +1,6 @@
 import User from "../models/user.model.js";
+import bcrypt from "bcryptjs";
+import cloudinary from "../config/cloudinary.js";
 
 // Fetch logged‑in user's profile.
 export const getUserProfile = async (req, res) => {
@@ -50,7 +52,8 @@ export const updateUserProfile = async (req, res) => {
     if (contact) user.contact = contact;
     if (bio) user.bio = bio;
 
-    if (profileImg) {
+    // Handle profile image upload
+    if (req.file) {
       // destroy old image
       if (user.profileImg) {
         const publicId = user.profileImg
@@ -63,12 +66,10 @@ export const updateUserProfile = async (req, res) => {
       }
 
       // upload new image
-      const uploadedResponse = await cloudinary.uploader.upload(profileImg, {
+      const uploadedResponse = await cloudinary.uploader.upload(req.file.path, {
         folder: "profile_images",
       });
-      profileImg = uploadedResponse.secure_url;
-
-      user.profileImg = profileImg;
+      user.profileImg = uploadedResponse.secure_url;
     }
 
     if (password) {
@@ -77,7 +78,19 @@ export const updateUserProfile = async (req, res) => {
     }
     await user.save();
     console.log(user);
-    res.status(200).json({ message: "User profile updated successfully" });
+    res.status(200).json({
+      message: "User profile updated successfully",
+      user: {
+        _id: user._id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        contact: user.contact,
+        profileImg: user.profileImg,
+        authProvider: user.authProvider,
+        profileCompleted: user.profileCompleted,
+      },
+    });
   } catch (error) {
     console.log("Error in user profile update controller", error.message);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -88,38 +101,54 @@ export const updateUserProfile = async (req, res) => {
 export const completeProfile = async (req, res) => {
   try {
     const { username, contact } = req.body;
-    let { profileImg } = req.body;
 
-    const user = await User.findById(req.user.id);
+    // Check if username is already taken
+    const existingUser = await User.findOne({ username });
+    if (
+      existingUser &&
+      existingUser._id.toString() !== req.user._id.toString()
+    ) {
+      return res.status(400).json({ error: "Username is already taken" });
+    }
 
-    user.username = username;
-    user.contact = contact;
-    user.profileCompleted = true;
+    const user = await User.findById(req.user._id);
 
-    if (profileImg) {
-      if (user.coverImg) {
+    // Handle profile image upload
+    if (req.file) {
+      // If there's an existing image, delete it from cloudinary
+      if (user.profileImg) {
         const publicId = user.profileImg
           .split("/")
           .slice(-2)
           .join("/")
           .split(".")[0];
-
         await cloudinary.uploader.destroy(publicId);
       }
 
-      const uploadedResponse = await cloudinary.uploader.upload(profileImg, {
+      // Upload new image to cloudinary
+      const uploadedResponse = await cloudinary.uploader.upload(req.file.path, {
         folder: "profile_images",
       });
-      profileImg = uploadedResponse.secure_url;
+      user.profileImg = uploadedResponse.secure_url;
     }
 
     await user.save();
 
     res.json({
       message: "Profile completed",
-      user,
+      user: {
+        _id: user._id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        contact: user.contact,
+        profileImg: user.profileImg,
+        authProvider: user.authProvider,
+        profileCompleted: user.profileCompleted,
+      },
     });
   } catch (err) {
+    console.error("Error completing profile:", err);
     res.status(500).json({ message: "Error completing profile" });
   }
 };

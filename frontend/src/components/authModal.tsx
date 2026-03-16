@@ -24,7 +24,7 @@ export default function AuthModal() {
     try {
       setLoading(true);
       setError("");
-      
+
       const res = await loginUser({
         username: loginusername,
         password: loginpassword,
@@ -35,7 +35,6 @@ export default function AuthModal() {
 
       document.getElementById("auth_modal")?.close();
       navigate("/home");
-
     } catch (err: any) {
       setError(err.response?.data?.error || "Login failed");
     } finally {
@@ -50,7 +49,6 @@ export default function AuthModal() {
 
       await registerUser({ name, username, email, password, role });
       setMode("login"); // Switch to login view
-
     } catch (err: any) {
       setError(err.response?.data?.error || "Register failed");
     } finally {
@@ -61,11 +59,18 @@ export default function AuthModal() {
   const handleGoogleLogin = async (credentialResponse: any) => {
     try {
       const res = await googleLogin(credentialResponse.credential);
-      setUser(res.data);
+      setUser(res.data.user);
       document.getElementById("auth_modal")?.close();
-      navigate("/home");
+
+      // Redirect based on profile completion status
+      if (res.data.profileCompleted) {
+        navigate("/home");
+      } else {
+        navigate("/profile");
+      }
     } catch (err) {
-      console.log(err);
+      console.error("Google login error:", err);
+      setError("Google login failed. Please try again.");
     }
   };
 

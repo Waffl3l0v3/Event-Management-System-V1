@@ -185,37 +185,47 @@ export const googleAuth = async (req, res) => {
     let user = await User.findOne({ email });
 
     if (!user) {
-      user = await User.create({
-        name:name,
-        email:email,
+      user = new User({
+        name: name,
+        email: email,
         profileImg: picture,
         googleId: sub,
         profileCompleted: false,
         authProvider: "google",
       });
+      await user.save();
+      console.log("New Google user created:", user);
     } else if (!user.googleId) {
       // existing user linking google account
       user.googleId = sub;
       await user.save();
+      console.log("Existing user linked with Google:", user);
     }
 
-    const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "15m",
-    });
+    console.log("Google auth successful for user:", user);
+
+    const accessToken = generateTokenAndSetCookie(user._id, res);
 
     res.json({
       accessToken,
-      user,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        profileImg: user.profileImg,
+        authProvider: user.authProvider,
+        profileCompleted: user.profileCompleted,
+      },
       profileCompleted: user.profileCompleted,
     });
   } catch (err) {
+    console.error("Google auth error:", err);
     res.status(401).json({ message: "Google authentication failed" });
   }
 };
 
 export const getMe = async (req, res) => {
   try {
-
     const token = req.cookies.jwt;
 
     if (!token) {
@@ -227,9 +237,7 @@ export const getMe = async (req, res) => {
     const user = await User.findById(decoded.userId).select("-password");
 
     res.json(user);
-
   } catch (error) {
     res.status(401).json({ message: "Invalid token" });
   }
 };
-

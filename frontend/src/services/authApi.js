@@ -13,20 +13,47 @@ import axios from "axios";
 
 const API_auth = axios.create({
   baseURL: "/api/auth",
-  withCredentials: true
+  withCredentials: true,
 });
 
 export const loginUser = (data) => API_auth.post("/login", data);
 export const registerUser = (data) => API_auth.post("/register", data);
 export const googleLogin = (token) => API_auth.post("/google", { token });
-export const logoutUser = () => API_auth.get("/logout"); 
-export const fetchCurrentUser = () => API_auth.get("/me"); 
+export const logoutUser = () => API_auth.get("/logout");
+export const fetchCurrentUser = () => API_auth.get("/me");
 
 // User Routes
 const API_user = axios.create({
   baseURL: "/api/user",
-  withCredentials: true
+  withCredentials: true,
 });
 
-export const updateUserProfile = (data) => API_user.patch("/profile", data);
+export const updateUserProfile = (data) => {
+  const formData = data instanceof FormData ? data : new FormData();
+  if (!(data instanceof FormData)) {
+    Object.keys(data).forEach((key) => formData.append(key, data[key]));
+  }
+  return API_user.patch("/profile", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
 export const getUserProfile = () => API_user.get("/profile");
+export const completeProfile = (data) => {
+  const formData = data instanceof FormData ? data : new FormData();
+  if (!(data instanceof FormData)) {
+    Object.keys(data).forEach((key) => {
+      if (data[key] instanceof File) {
+        formData.append(key, data[key]);
+      } else {
+        formData.append(key, data[key]);
+      }
+    });
+  }
+  return API_user.patch("/complete-profile", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
