@@ -1,6 +1,7 @@
 import path from "path";
 import express from "express";
 import dotenv from "dotenv";
+import cloudinary from "./config/cloudinary.js";
 import cookieParser from "cookie-parser";
 import { connectDB } from "./config/connectMongoDB.js";
 import cors from "cors";
@@ -50,5 +51,6 @@ app.get("/", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  cloudinary;
   connectDB();
 });

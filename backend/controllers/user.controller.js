@@ -2,6 +2,7 @@ import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../config/cloudinary.js";
 
+
 // Fetch logged‑in user's profile.
 export const getUserProfile = async (req, res) => {
   try {
@@ -41,21 +42,46 @@ export const getUserById = async (req, res) => {
 // Update username, contact, profile image, etc.
 export const updateUserProfile = async (req, res) => {
   try {
-    const { name, username, email, password, contact, bio, profileImg } =
+    const { name, username, email, password, contact, bio, removeProfileImg } =
       req.body;
     const user = req.user;
-    console.log(user);
+
+    // Check if username is already taken
+    if (username) {
+      const existingUser = await User.findOne({ username });
+      if (
+        existingUser &&
+        existingUser._id.toString() !== user._id.toString()
+      ) {
+        return res.status(400).json({ error: "Username is already taken" });
+      }
+      user.username = username;
+    }
 
     if (name) user.name = name;
-    if (username) user.username = username;
     if (email) user.email = email;
     if (contact) user.contact = contact;
     if (bio) user.bio = bio;
+    if (user.authProvider === "google" && !user.profileCompleted && user.username) {
+      user.profileCompleted = true;
+    }
 
-    // Handle profile image upload
-    if (req.file) {
+    // Handle profile image removal or update
+    if (removeProfileImg === "true") {
+      // Only destroy if it's a Cloudinary image
+      if (user.profileImg && user.profileImg.includes("cloudinary")) {
+        const publicId = user.profileImg
+          .split("/")
+          .slice(-2)
+          .join("/")
+          .split(".")[0];
+        await cloudinary.uploader.destroy(publicId);
+      }
+      user.profileImg = "";
+    } else if (req.file) {
       // destroy old image
-      if (user.profileImg) {
+      // Only destroy if it's a Cloudinary image
+      if (user.profileImg && user.profileImg.includes("cloudinary")) {
         const publicId = user.profileImg
           .split("/")
           .slice(-2)
@@ -77,7 +103,6 @@ export const updateUserProfile = async (req, res) => {
       user.password = await bcrypt.hash(password, salt);
     }
     await user.save();
-    console.log(user);
     res.status(200).json({
       message: "User profile updated successfully",
       user: {
@@ -89,67 +114,15 @@ export const updateUserProfile = async (req, res) => {
         profileImg: user.profileImg,
         authProvider: user.authProvider,
         profileCompleted: user.profileCompleted,
+        bio: user.bio,
+        followers: user.followers,
+        following: user.following,
+        role: user.role,
       },
     });
   } catch (error) {
     console.log("Error in user profile update controller", error.message);
     return res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-
-// Completes profile after Google login.
-export const completeProfile = async (req, res) => {
-  try {
-    const { username, contact } = req.body;
-
-    // Check if username is already taken
-    const existingUser = await User.findOne({ username });
-    if (
-      existingUser &&
-      existingUser._id.toString() !== req.user._id.toString()
-    ) {
-      return res.status(400).json({ error: "Username is already taken" });
-    }
-
-    const user = await User.findById(req.user._id);
-
-    // Handle profile image upload
-    if (req.file) {
-      // If there's an existing image, delete it from cloudinary
-      if (user.profileImg) {
-        const publicId = user.profileImg
-          .split("/")
-          .slice(-2)
-          .join("/")
-          .split(".")[0];
-        await cloudinary.uploader.destroy(publicId);
-      }
-
-      // Upload new image to cloudinary
-      const uploadedResponse = await cloudinary.uploader.upload(req.file.path, {
-        folder: "profile_images",
-      });
-      user.profileImg = uploadedResponse.secure_url;
-    }
-
-    await user.save();
-
-    res.json({
-      message: "Profile completed",
-      user: {
-        _id: user._id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        contact: user.contact,
-        profileImg: user.profileImg,
-        authProvider: user.authProvider,
-        profileCompleted: user.profileCompleted,
-      },
-    });
-  } catch (err) {
-    console.error("Error completing profile:", err);
-    res.status(500).json({ message: "Error completing profile" });
   }
 };
 

@@ -2,7 +2,6 @@ import express from "express";
 import { protectRoute } from "../middleware/protectRoute.js";
 import multer from "multer";
 import {
-  completeProfile,
   followUnfollowUser,
   getFollowers,
   getFollowing,
@@ -22,12 +21,12 @@ router.patch(
   upload.single("profileImg"),
   updateUserProfile,
 );
-router.patch(
-  "/complete-profile",
-  protectRoute,
-  upload.single("profileImg"),
-  completeProfile,
-);
+// router.patch(
+//   "/complete-profile",
+//   protectRoute,
+//   upload.single("profileImg"),
+//   completeProfile,
+// );
 
 router.get("/:id", getUserById);
 

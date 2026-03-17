@@ -26,13 +26,14 @@ export default function Navbar() {
             {/* 🔹 Added gap and span to show username next to avatar */}
             <div tabIndex={0} role="button" className="btn btn-ghost hover:bg-base-200 rounded-btn flex items-center gap-3">
               <span className="font-semibold text-sm">
-                {user.username}
+                {user.username || user.name}
               </span>
               <div className="w-10 h-10 rounded-full border avatar">
                 <img
                   className="rounded-full object-cover"
                   alt="User Avatar"
                   src={user.profileImg || "https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg"}
+                  key={user.profileImg || "default-navbar-img"} // Add key to force re-render on image change
                 />
               </div>
             </div>

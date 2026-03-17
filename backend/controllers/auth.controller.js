@@ -11,6 +11,7 @@ export const register = async (req, res) => {
       username,
       password,
       email,
+      role,
       contact = "",
       profileImg = "",
     } = req.body;
@@ -51,6 +52,7 @@ export const register = async (req, res) => {
       name,
       username,
       email,
+      role,
       password: hashedPassword,
       contact: contact,
       profileImg: profileImg,
@@ -67,6 +69,7 @@ export const register = async (req, res) => {
         name: newUser.name,
         username: newUser.username,
         email: newUser.email,
+        role: newUser.role,
         contact: newUser.contact,
         profileImg: newUser.profileImg,
         authProvider: newUser.authProvider,
@@ -168,7 +171,7 @@ export const refreshToken = async (req, res) => {
 
 export const googleAuth = async (req, res) => {
   try {
-    const { token } = req.body;
+    const { token, role } = req.body;
 
     if (!token) {
       return res.status(400).json({ message: "Token required" });
@@ -192,6 +195,7 @@ export const googleAuth = async (req, res) => {
         googleId: sub,
         profileCompleted: false,
         authProvider: "google",
+        role: role || "attendee",
       });
       await user.save();
       console.log("New Google user created:", user);
@@ -211,10 +215,16 @@ export const googleAuth = async (req, res) => {
       user: {
         _id: user._id,
         name: user.name,
+        username: user.username,
         email: user.email,
+        contact: user.contact,
         profileImg: user.profileImg,
         authProvider: user.authProvider,
         profileCompleted: user.profileCompleted,
+        bio: user.bio,
+        followers: user.followers,
+        following: user.following,
+        role: user.role,
       },
       profileCompleted: user.profileCompleted,
     });
@@ -226,18 +236,15 @@ export const googleAuth = async (req, res) => {
 
 export const getMe = async (req, res) => {
   try {
-    const token = req.cookies.jwt;
-
-    if (!token) {
-      return res.status(401).json({ message: "Not logged in" });
+    // Assuming a 'protectRoute' middleware has already verified the token
+    // and attached the user's ID to the request object (req.user).
+    const user = await User.findById(req.user._id).select("-password");
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    const user = await User.findById(decoded.userId).select("-password");
-
-    res.json(user);
+    res.status(200).json(user);
   } catch (error) {
-    res.status(401).json({ message: "Invalid token" });
+    console.log("Error in getMe controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };

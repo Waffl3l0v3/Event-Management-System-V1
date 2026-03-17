@@ -1,8 +1,9 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext"; // Import Context
 import LandingPage from "./pages/LandingPage";
-import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
+import AttendeeDashboard from "./pages/AttendeeDashboard";
+import OrganizerDashboard from "./pages/OrganizerDashboard";
 
 // 🔒 New Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -26,13 +27,24 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return children;
 };
 
+// Role-based Homepage Router
+const HomePageRouter = () => {
+  const { user } = useAuth();
+
+  if (user?.role === "organizer") {
+    return <OrganizerDashboard />;
+  }
+  // Default to attendee dashboard
+  return <AttendeeDashboard />;
+};
+
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/home" element={
         <ProtectedRoute>
-          <HomePage />
+          <HomePageRouter />
         </ProtectedRoute>
       } />
       <Route path="/profile" element={

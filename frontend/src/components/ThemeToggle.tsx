@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
 export default function ThemeToggle() {
-  // 1. Initialize state. Check localStorage first, fallback to 'pastel'
+  // 1. Initialize state. Check localStorage first, fallback to 'valentine'
   const [theme, setTheme] = useState(
-    localStorage.getItem("theme") ? localStorage.getItem("theme") : "pastel"
+    localStorage.getItem("theme") ? localStorage.getItem("theme") : "valentine"
   );
 
   // 2. Update the HTML tag and save to localStorage whenever 'theme' changes
@@ -17,7 +17,7 @@ export default function ThemeToggle() {
     if (e.target.checked) {
       setTheme("dark");
     } else {
-      setTheme("pastel");
+      setTheme("valentine");
     }
   };
 

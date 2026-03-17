@@ -1,13 +1,16 @@
 {
-    "name":"Rewa",
-    "username":"WAFFL3",
+    "name":"Soham",
+    "username":"Somya",
     "password":"12345678",
-    "email":"rewashete@gmail.com"
+    "email":"soham@gmail.com",
+    "role":"attendee"
 }
 
 {
-    "name":"RewaShete",
-    "username":"Saturn",
+    "name":"Soham",
+    "username":"Somyaa",
     "password":"12345678",
-    "email":"rewa@gmail.com"
+    "email":"soha@gmail.com",
+    "role":"organizer"
 }
+
