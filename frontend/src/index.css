@@ -1,8 +1,18 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-  themes: valentine, dark; /* only valentine + dark */
+  themes: light, dark, emerald, fantasy, pastel, lemonade, aqua; /* vibrant themes for EMS */
   // optional:
   // root: ":root";
   // prefix: daisy-;
   // logs: false;
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
 }

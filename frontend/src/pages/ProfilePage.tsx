@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 import { updateUserProfile } from "../services/authApi.js"; // Import API
 
@@ -126,8 +125,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <>
-      <Navbar />
+    <div>
       <div className="p-4">
         <Link to="/home" className="btn btn-ghost">
           <svg
@@ -310,6 +308,6 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
