@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 import { updateUserProfile } from "../services/authApi.js"; // Import API
 
@@ -13,6 +12,7 @@ export default function ProfilePage() {
   const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState("");
   const [removeImageFlag, setRemoveImageFlag] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -56,8 +56,13 @@ export default function ProfilePage() {
   const handleImageChange = (e: any) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        setError("Image too large. Maximum size is 10MB.");
+        return;
+      }
       setSelectedImage(file);
       setRemoveImageFlag(false); // A new file was chosen, so don't remove
+      setError(""); // Clear any previous error
       const reader = new FileReader();
       reader.onload = () => {
         setImagePreview(reader.result);
@@ -76,6 +81,7 @@ export default function ProfilePage() {
   };
 
   const handleSave = async () => {
+    setLoading(true);
     try {
       setError("");
       const formData = new FormData();
@@ -113,12 +119,13 @@ export default function ProfilePage() {
           error.response?.data?.message ||
           "Failed to update profile",
       );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <>
-      <Navbar />
+    <div>
       <div className="p-4">
         <Link to="/home" className="btn btn-ghost">
           <svg
@@ -181,10 +188,16 @@ export default function ProfilePage() {
             <p className="text-gray-500 text-sm">{user?.email}</p>
             <div className="flex gap-4 mt-2 text-sm text-gray-500">
               <span>
-                <span className="font-bold text-base-content">{user?.followers?.length || 0}</span> Followers
+                <span className="font-bold text-base-content">
+                  {user?.followers?.length || 0}
+                </span>{" "}
+                Followers
               </span>
               <span>
-                <span className="font-bold text-base-content">{user?.following?.length || 0}</span> Following
+                <span className="font-bold text-base-content">
+                  {user?.following?.length || 0}
+                </span>{" "}
+                Following
               </span>
             </div>
             {isCompletingProfile && (
@@ -262,12 +275,23 @@ export default function ProfilePage() {
                 <button
                   className="btn btn-primary"
                   onClick={handleSave}
-                  disabled={isCompletingProfile && !form.username.trim()}
+                  disabled={
+                    loading || (isCompletingProfile && !form.username.trim())
+                  }
+                  type="button"
                 >
-                  {isCompletingProfile ? "Complete Profile" : "Save"}
+                  {loading
+                    ? "Saving..."
+                    : isCompletingProfile
+                      ? "Complete Profile"
+                      : "Save"}
                 </button>
                 {!isCompletingProfile && (
-                  <button className="btn" onClick={() => setEditing(false)}>
+                  <button
+                    className="btn"
+                    onClick={() => setEditing(false)}
+                    type="button"
+                  >
                     Cancel
                   </button>
                 )}
@@ -276,6 +300,7 @@ export default function ProfilePage() {
               <button
                 className="btn btn-outline"
                 onClick={() => setEditing(true)}
+                type="button"
               >
                 Edit Profile
               </button>
@@ -283,6 +308,6 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

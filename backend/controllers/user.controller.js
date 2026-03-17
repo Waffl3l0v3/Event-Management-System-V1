@@ -2,7 +2,6 @@ import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../config/cloudinary.js";
 
-
 // Fetch logged‑in user's profile.
 export const getUserProfile = async (req, res) => {
   try {
@@ -42,6 +41,8 @@ export const getUserById = async (req, res) => {
 // Update username, contact, profile image, etc.
 export const updateUserProfile = async (req, res) => {
   try {
+    console.log("updateUserProfile called");
+    console.log("req.file:", req.file);
     const { name, username, email, password, contact, bio, removeProfileImg } =
       req.body;
     const user = req.user;
@@ -49,10 +50,7 @@ export const updateUserProfile = async (req, res) => {
     // Check if username is already taken
     if (username) {
       const existingUser = await User.findOne({ username });
-      if (
-        existingUser &&
-        existingUser._id.toString() !== user._id.toString()
-      ) {
+      if (existingUser && existingUser._id.toString() !== user._id.toString()) {
         return res.status(400).json({ error: "Username is already taken" });
       }
       user.username = username;
@@ -62,7 +60,11 @@ export const updateUserProfile = async (req, res) => {
     if (email) user.email = email;
     if (contact) user.contact = contact;
     if (bio) user.bio = bio;
-    if (user.authProvider === "google" && !user.profileCompleted && user.username) {
+    if (
+      user.authProvider === "google" &&
+      !user.profileCompleted &&
+      user.username
+    ) {
       user.profileCompleted = true;
     }
 
@@ -77,7 +79,8 @@ export const updateUserProfile = async (req, res) => {
           .split(".")[0];
         await cloudinary.uploader.destroy(publicId);
       }
-      user.profileImg = "";
+      user.profileImg =
+        "https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg";
     } else if (req.file) {
       // destroy old image
       // Only destroy if it's a Cloudinary image
@@ -92,9 +95,13 @@ export const updateUserProfile = async (req, res) => {
       }
 
       // upload new image
-      const uploadedResponse = await cloudinary.uploader.upload(req.file.path, {
-        folder: "profile_images",
-      });
+      const uploadedResponse = await cloudinary.uploader.upload(
+        req.file.path.replace(/\\/g, "/"),
+        {
+          folder: "profile_images",
+        },
+      );
+      console.log(uploadedResponse);
       user.profileImg = uploadedResponse.secure_url;
     }
 
