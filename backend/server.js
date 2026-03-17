@@ -1,6 +1,6 @@
 import path from "path";
 import express from "express";
-import dotenv from "dotenv";
+import dotenv from "dotenv"
 import cloudinary from "./config/cloudinary.js";
 import cookieParser from "cookie-parser";
 import { connectDB } from "./config/connectMongoDB.js";
