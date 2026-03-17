@@ -18,7 +18,8 @@ const API_auth = axios.create({
 
 export const loginUser = (data) => API_auth.post("/login", data);
 export const registerUser = (data) => API_auth.post("/register", data);
-export const googleLogin = (token, role) => API_auth.post("/google", { token, role });
+export const googleLogin = (token, role) =>
+  API_auth.post("/google", { token, role });
 export const logoutUser = () => API_auth.get("/logout");
 export const fetchCurrentUser = () => API_auth.get("/me");
 
@@ -37,6 +38,7 @@ export const updateUserProfile = (data) => {
     headers: {
       "Content-Type": "multipart/form-data",
     },
+    timeout: 30000,
   });
 };
 export const getUserProfile = () => API_user.get("/profile");

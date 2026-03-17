@@ -12,7 +12,10 @@ import {
 
 const router = express.Router();
 
-const upload = multer({ dest: "uploads/" });
+const upload = multer({
+  dest: "uploads/",
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
 
 router.get("/profile", protectRoute, getUserProfile);
 router.patch(

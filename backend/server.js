@@ -1,6 +1,10 @@
+import "./config/loadEnv.js";
+
 import path from "path";
+
+const __dirname = path.resolve();
+
 import express from "express";
-import dotenv from "dotenv";
 import cloudinary from "./config/cloudinary.js";
 import cookieParser from "cookie-parser";
 import { connectDB } from "./config/connectMongoDB.js";
@@ -12,11 +16,8 @@ import notificationRoutes from "./routes/notification.route.js";
 import paymentRoutes from "./routes/payment.route.js";
 import userRoutes from "./routes/user.route.js";
 
-dotenv.config();
-
 const app = express();
 const PORT = process.env.PORT || 5000;
-const __dirname = path.resolve();
 
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true }));

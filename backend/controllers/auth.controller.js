@@ -55,7 +55,9 @@ export const register = async (req, res) => {
       role,
       password: hashedPassword,
       contact: contact,
-      profileImg: profileImg,
+      profileImg:
+        profileImg ||
+        "https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg",
       authProvider: "local",
     });
 
