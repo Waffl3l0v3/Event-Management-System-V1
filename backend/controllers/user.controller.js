@@ -15,6 +15,9 @@ export const getUserProfile = async (req, res) => {
       bio: user.bio,
       followers: user.followers,
       following: user.following,
+      role: user.role,
+      authProvider: user.authProvider,
+      profileCompleted: user.profileCompleted,
     });
   } catch (error) {
     console.log("Error in user profile controller", error.message);

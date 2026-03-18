@@ -33,6 +33,7 @@ export default function AuthModal() {
 
       // 🔹 Backend already set the cookie! Just update React state.
       setUser(res.data);
+      localStorage.setItem("authUser", JSON.stringify(res.data));
 
       document.getElementById("auth_modal")?.close();
       navigate("/home");
@@ -61,6 +62,7 @@ export default function AuthModal() {
     try {
       const res = await googleLogin(credentialResponse.credential, mode === "register" ? registerRole : undefined);
       setUser(res.data.user);
+      localStorage.setItem("authUser", JSON.stringify(res.data.user));
       document.getElementById("auth_modal")?.close();
 
       // Redirect based on profile completion status

@@ -24,4 +24,5 @@ WE GETTING RICHHH
 2. ai agent
 3. blogs
 4. threads in comment/blog
-5. 
+5. simple ticket/query system
+6. caching

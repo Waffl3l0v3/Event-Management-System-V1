@@ -1,6 +1,13 @@
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
 export default function LandingPage() {
+  const { user } = useAuth();
+
+  if (user) return <Navigate to="/home" replace />;
+
   return (
-    <div className="hero min-h-screen bg-gradient-to-br from-primary to-secondary animate-fade-in">
+    <div className="hero min-h-screen bg-linear-to-br from-primary to-secondary animate-fade-in">
       <div className="hero-content text-center">
         <div className="max-w-md">
           <h1 className="text-5xl font-bold text-white mb-5">

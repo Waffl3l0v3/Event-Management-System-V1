@@ -1,39 +1,30 @@
 import { useEffect, useState } from "react";
 
-const themes = [
-  "light",
-  "dark",
-  "emerald",
-  "fantasy",
-  "pastel",
-  "lemonade",
-  "aqua",
-];
-
 export default function ThemeToggle() {
-  const [currentTheme, setCurrentTheme] = useState(
-    localStorage.getItem("theme") || "emerald",
+  const [isDarkMode, setIsDarkMode] = useState(
+    localStorage.getItem("theme") === "dark"
   );
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", currentTheme);
-    localStorage.setItem("theme", currentTheme);
-  }, [currentTheme]);
+    const theme = isDarkMode ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [isDarkMode]);
 
-  const cycleTheme = () => {
-    const currentIndex = themes.indexOf(currentTheme);
-    const nextIndex = (currentIndex + 1) % themes.length;
-    setCurrentTheme(themes[nextIndex]);
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
   };
 
   return (
-    <button
-      onClick={cycleTheme}
-      className="btn btn-ghost btn-circle hover:scale-110 transition-transform duration-200"
-      title={`Current theme: ${currentTheme}`}
+    <label
+      className="swap swap-rotate btn btn-ghost btn-circle hover:scale-110 transition-transform duration-200"
+      title={`Toggle to ${isDarkMode ? "light" : "dark"} mode`}
     >
+      <input type="checkbox" checked={isDarkMode} onChange={toggleTheme} />
+      
+      {/* Sun icon (shows when dark mode is active to switch back to light) */}
       <svg
-        className="w-6 h-6"
+        className="swap-on w-6 h-6"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -42,9 +33,24 @@ export default function ThemeToggle() {
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth="2"
-          d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"
+          d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
         />
       </svg>
-    </button>
+
+      {/* Moon icon (shows when light mode is active to switch to dark) */}
+      <svg
+        className="swap-off w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+        />
+      </svg>
+    </label>
   );
 }

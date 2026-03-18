@@ -100,8 +100,9 @@ export default function ProfilePage() {
 
       const res = await updateUserProfile(formData);
 
-      // Update user state
+      // Update user state and persist to localStorage so UI stays consistent on refresh
       setUser(res.data.user);
+      localStorage.setItem("authUser", JSON.stringify(res.data.user));
 
       setEditing(false);
       setSelectedImage(null);
